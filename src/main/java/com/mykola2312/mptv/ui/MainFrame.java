@@ -35,13 +35,19 @@ public class MainFrame {
 
         categoryList = new JList<String>(items);
         categoryList.setFont(font);
-        categoryPanel.add(categoryList, BorderLayout.CENTER);
+
+        final JScrollPane categoryListScroll = new JScrollPane(categoryList);
+        categoryListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        categoryPanel.add(categoryListScroll, BorderLayout.CENTER);
 
         statusPanel.add(new JButton("status"));
 
         channelList = new JList<String>(items);
         channelList.setFont(font);
-        channelPanel.add(channelList, BorderLayout.CENTER);
+
+        final JScrollPane channelListScroll = new JScrollPane(channelList);
+        channelListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        channelPanel.add(channelListScroll, BorderLayout.CENTER);
 
         if (fullscreen) {
             frame.setUndecorated(true);
