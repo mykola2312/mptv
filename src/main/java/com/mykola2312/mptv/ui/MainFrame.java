@@ -12,11 +12,13 @@ public class MainFrame {
         frame = new JFrame(I18n.get("MainFrame_Title"));
 
         JPanel categoryPanel = new JPanel();
-        JPanel rightPanel = new JPanel();
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         JPanel statusPanel = new JPanel();
         JPanel channelPanel = new JPanel();
         JSplitPane vsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, statusPanel, channelPanel);
+        vsp.setDividerSize(2);
+        vsp.setContinuousLayout(true);
         rightPanel.add(vsp);
 
         JSplitPane hsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, categoryPanel, rightPanel);
