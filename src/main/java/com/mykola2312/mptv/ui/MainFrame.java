@@ -6,29 +6,41 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainFrame {
+    private Font font;
     private JFrame frame;
+    private JList<String> categoryList;
+    private JList<String> channelList;
 
     public void create(short width, short height, boolean fullscreen) {
+        font = new Font("Arial", Font.PLAIN, 48);
+
         frame = new JFrame(I18n.get("MainFrame_Title"));
 
-        JPanel categoryPanel = new JPanel();
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        final JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        final JPanel categoryPanel = new JPanel(new BorderLayout());
+        final JPanel channelPanel = new JPanel(new BorderLayout());
 
-        JPanel statusPanel = new JPanel();
-        JPanel channelPanel = new JPanel();
-        JSplitPane vsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, statusPanel, channelPanel);
+        final JSplitPane hsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, categoryPanel, channelPanel);
+        hsp.setDividerLocation(0.35);
+
+        final JSplitPane vsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, statusPanel, hsp);
         vsp.setDividerSize(2);
         vsp.setContinuousLayout(true);
-        rightPanel.add(vsp);
+        frame.add(vsp);
 
-        JSplitPane hsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, categoryPanel, rightPanel);
-        hsp.setDividerLocation(0.30);
-        frame.add(hsp);
+        categoryList = new JList<String>(new String[] {
+                "category1","category2","category3","category4","category5","category6","category7","category8",
+        });
+        categoryList.setFont(font);
+        categoryPanel.add(categoryList, BorderLayout.CENTER);
 
-        categoryPanel.add(new JButton("category"));
         statusPanel.add(new JButton("status"));
-        channelPanel.add(new JButton("channel"));
 
+        channelList = new JList<String>(new String[] {
+                "channel1","channel2","channel3","channel4","channel5","channel6","channel7","channel8",
+        });;
+        channelList.setFont(font);
+        channelPanel.add(channelList, BorderLayout.CENTER);
 
         if (fullscreen) {
             frame.setUndecorated(true);
