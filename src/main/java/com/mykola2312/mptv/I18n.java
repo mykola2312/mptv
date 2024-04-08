@@ -12,7 +12,7 @@ public class I18n {
             String locale = Locale.getDefault().toString();
             bundle = ResourceBundle.getBundle("i18n_" + locale);
             if (bundle == null) {
-                bundle = ResourceBundle.getBundle("i18n_enUS");
+                bundle = ResourceBundle.getBundle("i18n_en_US");
             }
         }
 
