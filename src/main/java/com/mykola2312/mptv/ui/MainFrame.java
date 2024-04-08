@@ -38,6 +38,7 @@ public class MainFrame {
 
         final JScrollPane categoryListScroll = new JScrollPane(categoryList);
         categoryListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        categoryListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         categoryPanel.add(categoryListScroll, BorderLayout.CENTER);
 
         statusPanel.add(new JButton("status"));
@@ -47,6 +48,7 @@ public class MainFrame {
 
         final JScrollPane channelListScroll = new JScrollPane(channelList);
         channelListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        channelListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         channelPanel.add(channelListScroll, BorderLayout.CENTER);
 
         if (fullscreen) {
