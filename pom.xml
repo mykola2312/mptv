@@ -10,6 +10,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
-        <exec.mainClass>com.mykola2312.Main</exec.mainClass>
+        <exec.mainClass>com.mykola2312.mptv.Main</exec.mainClass>
     </properties>
 </project>
