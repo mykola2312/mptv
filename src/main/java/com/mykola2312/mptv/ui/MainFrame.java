@@ -28,17 +28,18 @@ public class MainFrame {
         vsp.setContinuousLayout(true);
         frame.add(vsp);
 
-        categoryList = new JList<String>(new String[] {
-                "category1","category2","category3","category4","category5","category6","category7","category8",
-        });
+        String[] items = new String[128];
+        for (int i = 0; i < 128; i++) {
+            items[i] = "item" + i;
+        }
+
+        categoryList = new JList<String>(items);
         categoryList.setFont(font);
         categoryPanel.add(categoryList, BorderLayout.CENTER);
 
         statusPanel.add(new JButton("status"));
 
-        channelList = new JList<String>(new String[] {
-                "channel1","channel2","channel3","channel4","channel5","channel6","channel7","channel8",
-        });;
+        channelList = new JList<String>(items);
         channelList.setFont(font);
         channelPanel.add(channelList, BorderLayout.CENTER);
 
