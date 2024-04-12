@@ -72,28 +72,30 @@ public class MainFrame {
     public void handleMenuAction(MenuAction action) {
         switch (action) {
             case ACTION_UP -> {
-                if (menuPosition == MenuPosition.MENU_CATEGORIES) {
-                    categoryIndex = (categoryIndex - 1) % categoryData.length;
-                } else if (menuPosition == MenuPosition.MENU_CHANNELS) {
-                    channelIndex = (channelIndex - 1) % channelData.length;
+                switch (menuPosition) {
+                    case MENU_CATEGORIES -> categoryIndex = (categoryIndex - 1) % categoryData.length;
+                    case MENU_CHANNELS -> channelIndex = (channelIndex - 1) % channelData.length;
                 }
             }
-
             case ACTION_DOWN ->  {
-                if (menuPosition == MenuPosition.MENU_CATEGORIES) {
-                    categoryIndex = (categoryIndex + 1) % categoryData.length;
-                } else if (menuPosition == MenuPosition.MENU_CHANNELS) {
-                    channelIndex = (channelIndex + 1) % channelData.length;
+                switch (menuPosition) {
+                    case MENU_CATEGORIES -> categoryIndex = (categoryIndex + 1) % categoryData.length;
+                    case MENU_CHANNELS -> channelIndex = (channelIndex + 1) % channelData.length;
                 }
             }
-
             case ACTION_LEFT -> menuPosition = MenuPosition.MENU_CATEGORIES;
             case ACTION_RIGHT -> menuPosition = MenuPosition.MENU_CHANNELS;
         }
 
         switch (menuPosition) {
-            case MENU_CATEGORIES -> categoryList.setSelectedIndex(categoryIndex);
-            case MENU_CHANNELS -> channelList.setSelectedIndex(channelIndex);
+            case MENU_CATEGORIES -> {
+                categoryList.setSelectedIndex(categoryIndex);
+                categoryList.ensureIndexIsVisible(categoryIndex);
+            }
+            case MENU_CHANNELS -> {
+                channelList.setSelectedIndex(channelIndex);
+                channelList.ensureIndexIsVisible(channelIndex);
+            }
         }
     }
 
