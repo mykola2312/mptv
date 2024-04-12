@@ -11,7 +11,25 @@ public class MainFrame {
     private JList<String> categoryList;
     private JList<String> channelList;
 
-    public void create(short width, short height, boolean fullscreen) {
+    public void setCategories(String[] categories) {
+        if (categoryList == null) {
+            categoryList = new JList<>(categories);
+            categoryList.setFont(font);
+        } else {
+            categoryList.setListData(categories);
+        }
+    }
+
+    public void setChannels(String[] channels) {
+        if (channelList == null) {
+            channelList = new JList<>(channels);
+            channelList.setFont(font);
+        } else {
+            channelList.setListData(channels);
+        }
+    }
+
+    private void spawn(short width, short height, boolean fullscreen) {
         font = new Font("Arial", Font.PLAIN, 48);
 
         frame = new JFrame(I18n.get("MainFrame_Title"));
@@ -33,8 +51,7 @@ public class MainFrame {
             items[i] = "item" + i;
         }
 
-        categoryList = new JList<String>(items);
-        categoryList.setFont(font);
+        setCategories(items);
 
         final JScrollPane categoryListScroll = new JScrollPane(categoryList);
         categoryListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -43,8 +60,7 @@ public class MainFrame {
 
         statusPanel.add(new JButton("status"));
 
-        channelList = new JList<String>(items);
-        channelList.setFont(font);
+        setChannels(items);
 
         final JScrollPane channelListScroll = new JScrollPane(channelList);
         channelListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -62,5 +78,25 @@ public class MainFrame {
         }
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+    }
+
+    public void create(short width, short height, boolean fullscreen) {
+        SwingUtilities.invokeLater(() -> {
+            spawn(width, height, fullscreen);
+        });
+
+        // TEST: multi thread access
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            String[] newChannels = new String[] {"first", "second"};
+            SwingUtilities.invokeLater(() -> {
+                setChannels(newChannels);
+            });
+        }).start();
     }
 }
