@@ -4,28 +4,96 @@ import com.mykola2312.mptv.I18n;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyListener;
 
 public class MainFrame {
     private Font font;
     private JFrame frame;
+    private String[] categoryData;
     private JList<String> categoryList;
+
+    private String[] channelData;
     private JList<String> channelList;
 
+    enum MenuPosition {
+        MENU_CATEGORIES,
+        MENU_CHANNELS
+    }
+
+    private MenuPosition menuPosition;
+    private int categoryIndex;
+    private int channelIndex;
+
+    enum MenuAction {
+        ACTION_UP,
+        ACTION_DOWN,
+        ACTION_LEFT,
+        ACTION_RIGHT
+    }
+
+    class KeyboardMenuAction extends AbstractAction {
+        private final MainFrame frame;
+        private final MenuAction action;
+
+        public KeyboardMenuAction(MainFrame frame, MenuAction action) {
+            this.frame = frame;
+            this.action = action;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            frame.handleMenuAction(action);
+        }
+    }
+
     public void setCategories(String[] categories) {
+        categoryIndex = 0;
+        categoryData = categories;
         if (categoryList == null) {
-            categoryList = new JList<>(categories);
+            categoryList = new JList<>(categoryData);
             categoryList.setFont(font);
         } else {
-            categoryList.setListData(categories);
+            categoryList.setListData(categoryData);
         }
     }
 
     public void setChannels(String[] channels) {
+        channelIndex = 0;
+        channelData = channels;
         if (channelList == null) {
-            channelList = new JList<>(channels);
+            channelList = new JList<>(channelData);
             channelList.setFont(font);
         } else {
-            channelList.setListData(channels);
+            channelList.setListData(channelData);
+        }
+    }
+
+    public void handleMenuAction(MenuAction action) {
+        switch (action) {
+            case ACTION_UP -> {
+                if (menuPosition == MenuPosition.MENU_CATEGORIES) {
+                    categoryIndex = (categoryIndex - 1) % categoryData.length;
+                } else if (menuPosition == MenuPosition.MENU_CHANNELS) {
+                    channelIndex = (channelIndex - 1) % channelData.length;
+                }
+            }
+
+            case ACTION_DOWN ->  {
+                if (menuPosition == MenuPosition.MENU_CATEGORIES) {
+                    categoryIndex = (categoryIndex + 1) % categoryData.length;
+                } else if (menuPosition == MenuPosition.MENU_CHANNELS) {
+                    channelIndex = (channelIndex + 1) % channelData.length;
+                }
+            }
+
+            case ACTION_LEFT -> menuPosition = MenuPosition.MENU_CATEGORIES;
+            case ACTION_RIGHT -> menuPosition = MenuPosition.MENU_CHANNELS;
+        }
+
+        switch (menuPosition) {
+            case MENU_CATEGORIES -> categoryList.setSelectedIndex(categoryIndex);
+            case MENU_CHANNELS -> channelList.setSelectedIndex(channelIndex);
         }
     }
 
@@ -67,6 +135,20 @@ public class MainFrame {
         channelListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         channelPanel.add(channelListScroll, BorderLayout.CENTER);
 
+        final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
+        JRootPane rootPane = frame.getRootPane();
+        rootPane.getInputMap().put(KeyStroke.getKeyStroke("W"), "W");
+        rootPane.getInputMap().put(KeyStroke.getKeyStroke("S"), "S");
+        rootPane.getInputMap().put(KeyStroke.getKeyStroke("A"), "A");
+        rootPane.getInputMap().put(KeyStroke.getKeyStroke("D"), "D");
+
+        rootPane.getActionMap().put("W", new KeyboardMenuAction(this, MenuAction.ACTION_UP));
+        rootPane.getActionMap().put("S", new KeyboardMenuAction(this, MenuAction.ACTION_DOWN));
+        rootPane.getActionMap().put("A", new KeyboardMenuAction(this, MenuAction.ACTION_LEFT));
+        rootPane.getActionMap().put("D", new KeyboardMenuAction(this, MenuAction.ACTION_RIGHT));
+
+        menuPosition = MenuPosition.MENU_CATEGORIES;
+
         if (fullscreen) {
             frame.setUndecorated(true);
             frame.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
@@ -84,19 +166,5 @@ public class MainFrame {
         SwingUtilities.invokeLater(() -> {
             spawn(width, height, fullscreen);
         });
-
-        // TEST: multi thread access
-        new Thread(() -> {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            String[] newChannels = new String[] {"first", "second"};
-            SwingUtilities.invokeLater(() -> {
-                setChannels(newChannels);
-            });
-        }).start();
     }
 }
