@@ -1,6 +1,7 @@
 package com.mykola2312.mptv.ui;
 
 import com.mykola2312.mptv.I18n;
+import com.mykola2312.mptv.config.FrameConfig;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,20 +10,20 @@ public class MainFrame {
     private JFrame frame;
     private MenuPanel menu;
 
-    private void spawn(short width, short height, boolean fullscreen) {
-        Font font = new Font("Arial", Font.PLAIN, 48);
+    private void spawn(FrameConfig config) {
+        Font font = new Font(config.fontName, Font.PLAIN, config.fontSize);
 
         frame = new JFrame(I18n.get("MainFrame_Title"));
 
         menu = new MenuPanel(font);
         frame.add(menu, BorderLayout.CENTER);
 
-        if (fullscreen) {
+        if (config.fullscreen) {
             frame.setUndecorated(true);
             frame.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         } else {
-            Dimension size = new Dimension(width, height);
+            Dimension size = new Dimension(config.width, config.height);
             frame.setPreferredSize(size);
             frame.setSize(size);
         }
@@ -30,9 +31,9 @@ public class MainFrame {
         frame.setVisible(true);
     }
 
-    public void create(short width, short height, boolean fullscreen) {
+    public void create(FrameConfig config) {
         SwingUtilities.invokeLater(() -> {
-            spawn(width, height, fullscreen);
+            spawn(config);
         });
     }
 }

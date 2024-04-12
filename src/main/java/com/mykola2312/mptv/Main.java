@@ -1,5 +1,6 @@
 package com.mykola2312.mptv;
 
+import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
 
@@ -34,6 +35,6 @@ public class Main {
         }
 
         MainFrame frame = new MainFrame();
-        frame.create(config.frame.width, config.frame.height, config.frame.fullscreen);
+        frame.create(config.frame);
     }
 }

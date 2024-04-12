@@ -84,10 +84,16 @@ public class MenuPanel extends JPanel {
 
         switch (menuPosition) {
             case MENU_CATEGORIES -> {
+                categoryList.setEnabled(true);
+                channelList.setEnabled(false);
+
                 categoryList.setSelectedIndex(categoryIndex);
                 categoryList.ensureIndexIsVisible(categoryIndex);
             }
             case MENU_CHANNELS -> {
+                categoryList.setEnabled(false);
+                channelList.setEnabled(true);
+
                 channelList.setSelectedIndex(channelIndex);
                 channelList.ensureIndexIsVisible(channelIndex);
             }
@@ -144,5 +150,7 @@ public class MenuPanel extends JPanel {
         getActionMap().put("D", new KeyboardMenuAction(this, MenuAction.ACTION_RIGHT));
 
         menuPosition = MenuPosition.MENU_CATEGORIES;
+        categoryList.setEnabled(true);
+        channelList.setEnabled(false);
     }
 }
