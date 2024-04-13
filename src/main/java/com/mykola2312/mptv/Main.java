@@ -3,6 +3,8 @@ package com.mykola2312.mptv;
 import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.Configuration;
 
 import java.io.IOException;
 
@@ -36,5 +38,13 @@ public class Main {
 
         MainFrame frame = new MainFrame();
         frame.create(config.frame);
+
+        Flyway flyway = new Flyway(
+                Flyway.configure()
+                        .dataSource("jdbc:sqlite:mptv.db", "", "")
+                        .load()
+                        .getConfiguration()
+        );
+        flyway.migrate();
     }
 }
