@@ -3,6 +3,7 @@ package com.mykola2312.mptv;
 import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
+import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.Configuration;
 
@@ -46,5 +47,8 @@ public class Main {
                         .getConfiguration()
         );
         flyway.migrate();
+
+        Logger logger = Logger.getLogger(Main.class);
+        logger.info("mptv started");
     }
 }

@@ -42,3 +42,4 @@ build/
 # mptv
 config.json
 *.db
+log/
