@@ -12,9 +12,10 @@ import org.jooq.impl.*;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 
 public class Main {
+    private static final Logger logger = Logger.getLogger(Main.class);
+
     public static void main(String[] args) {
         final Options options = new Options();
         options.addOption(Option
@@ -27,7 +28,7 @@ public class Main {
         try {
             cmd = new DefaultParser().parse(options, args);
         } catch (ParseException e) {
-            System.err.println(e.toString());
+            logger.fatal(e.toString());
             System.exit(1);
             return;
         }
@@ -37,31 +38,41 @@ public class Main {
         try {
             config = Config.loadConfig(configPath);
         } catch (IOException e) {
-            System.err.printf("failed to read config: %s\n", e.toString());
+            logger.fatal(String.format("failed to read config: %s\n", e.toString()));
             System.exit(1);
             return;
         }
+
+        if (config.db == null) {
+            logger.fatal("no database configuration. exiting.");
+            System.exit(1);
+            return;
+        }
+        DB.setupFromConfig(config.db);
 
         MainFrame frame = new MainFrame();
         frame.create(config.frame);
 
         Flyway flyway = new Flyway(
                 Flyway.configure()
-                        .dataSource("jdbc:sqlite:mptv.db", "", "")
+                        .dataSource(DB.URL, DB.USER, DB.PASSWORD)
                         .load()
                         .getConfiguration()
         );
         flyway.migrate();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:mptv.db", "", "")) {
+        try (Connection conn = DB.getConnection()) {
             DSLContext create = DSL.using(conn, SQLDialect.SQLITE);
             Result<Record> result = create.select().from(TEST).fetch();
-            System.out.println(result);
+            for (Record r : result) {
+                Integer id = r.getValue(TEST.ID);
+                String value = r.getValue(TEST.VALUE);
+                System.out.printf("%d: %s\n", id, value);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Logger logger = Logger.getLogger(Main.class);
         logger.info("mptv started");
     }
 }

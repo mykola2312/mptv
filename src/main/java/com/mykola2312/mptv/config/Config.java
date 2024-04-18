@@ -7,6 +7,7 @@ import java.io.IOException;
 
 public class Config {
     public FrameConfig frame;
+    public DBConfig db;
 
     public static Config loadConfig(String path) throws IOException {
         return new ObjectMapper().readerFor(Config.class).readValue(new File(path));

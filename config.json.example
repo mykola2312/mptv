@@ -5,5 +5,11 @@
     "fullscreen": false,
     "fontName": "Arial",
     "fontSize": 64
+  },
+
+  "db": {
+    "url": "jdbc:sqlite:mptv.db",
+    "user": "",
+    "password": ""
   }
 }
