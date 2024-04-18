@@ -109,8 +109,10 @@
                     </jdbc>
 
                     <generator>
+                        <name>org.jooq.codegen.JavaGenerator</name>
                         <database>
-                            <includes>\*.</includes>
+                            <name>org.jooq.meta.sqlite.SQLiteDatabase</name>
+                            <includes>.*</includes>
                             <excludes>flyway_schema_history</excludes>
                         </database>
                         <generate>

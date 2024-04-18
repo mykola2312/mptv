@@ -5,9 +5,14 @@ import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.Configuration;
+import static com.mykola2312.mptv.tables.Test.*;
+import org.jooq.*;
+import org.jooq.Record;
+import org.jooq.impl.*;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 public class Main {
     public static void main(String[] args) {
@@ -47,6 +52,14 @@ public class Main {
                         .getConfiguration()
         );
         flyway.migrate();
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:mptv.db", "", "")) {
+            DSLContext create = DSL.using(conn, SQLDialect.SQLITE);
+            Result<Record> result = create.select().from(TEST).fetch();
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Logger logger = Logger.getLogger(Main.class);
         logger.info("mptv started");
