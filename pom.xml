@@ -8,8 +8,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>22</maven.compiler.source>
-        <maven.compiler.target>22</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <exec.mainClass>com.mykola2312.mptv.Main</exec.mainClass>
     </properties>
 
@@ -93,7 +93,7 @@
 
                     <generator>
                         <database>
-                            <includes>*.</includes>
+                            <includes>\*.</includes>
                             <excludes>flyway_schema_history</excludes>
                         </database>
                         <generate>
