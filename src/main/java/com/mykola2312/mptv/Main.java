@@ -6,12 +6,14 @@ import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
+import org.checkerframework.checker.nullness.qual.*;
+
 import static com.mykola2312.mptv.tables.Test.*;
 import org.jooq.*;
-import org.jooq.Record;
 import org.jooq.impl.*;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Main {
     private static final Logger logger = Logger.getLogger(Main.class);
@@ -70,12 +72,22 @@ public class Main {
         flyway.migrate();
 
         DSLContext create = DSL.using(DB.CONFIG);
-        Result<Record> result = create.select().from(TEST).fetch();
-        for (Record r : result) {
-            Integer id = r.getValue(TEST.ID);
-            String value = r.getValue(TEST.VALUE);
-            System.out.printf("%d: %s\n", id, value);
+        @NonNull List<Test> result = create
+            .select()
+            .from(TEST)
+            .fetchInto(Test.class);
+        for (Test t : result) {
+            System.out.printf("%d: %s\n", t.id, t.value);
         }
+
+        create = DSL.using(DB.CONFIG);
+        Test test = create
+            .select()
+            .from(TEST)
+            .limit(1)
+            .fetchOne()
+            .into(Test.class);
+        System.out.printf("fetchOne -> %d: %s\n", test.id, test.value);
 
         logger.info("mptv started");
     }
