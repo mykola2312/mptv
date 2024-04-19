@@ -1,5 +1,7 @@
 package com.mykola2312.mptv.crawler;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.net.ssl.SSLContext;
@@ -23,25 +25,31 @@ public class HttpClientFactory {
         "DTLSv1.0",
     };
 
-    public static HttpClient getHttpsClient() throws Exception {
+    public static HttpClient getHttpsClient() throws WebException {
         if (client != null) {
             return client;
         }
 
-        SSLContext sslContext = SSLContexts
-            .custom()
-            .build();
-        sslContext.init(null, new TrustManager[] { new HttpsTrustManager() }, new SecureRandom());
+        try {
+            SSLContext sslContext = SSLContexts
+                .custom()
+                .build();
+            sslContext.init(null, new TrustManager[] { new HttpsTrustManager() }, new SecureRandom());
 
-        SSLConnectionSocketFactory factory = new SSLConnectionSocketFactory(sslContext,
-            SUPPORTED_PROTOCOLS,
-            null,
-            SSLConnectionSocketFactory.getDefaultHostnameVerifier()
-        );
-        client = HttpClients
-            .custom()
-            .setSSLSocketFactory(factory)
-            .build();
+            SSLConnectionSocketFactory factory = new SSLConnectionSocketFactory(sslContext,
+                SUPPORTED_PROTOCOLS,
+                null,
+                SSLConnectionSocketFactory.getDefaultHostnameVerifier()
+            );
+            client = HttpClients
+                .custom()
+                .setSSLSocketFactory(factory)
+                .build();
+        } catch (NoSuchAlgorithmException e) {
+            throw new WebException(e);
+        } catch (KeyManagementException e) {
+            throw new WebException(e);
+        }
 
         return client;
     }

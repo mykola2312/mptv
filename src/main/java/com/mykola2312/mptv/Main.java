@@ -91,7 +91,7 @@ public class Main {
         System.out.printf("fetchOne -> %d: %s\n", test.id, test.value);
 
         WebRequest get = new WebRequest("https://example.com");
-        System.out.println(get.fetch());
+        System.out.println(get.fetch().body);
 
         logger.info("mptv started");
     }
