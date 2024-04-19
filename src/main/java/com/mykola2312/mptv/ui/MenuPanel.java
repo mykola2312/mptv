@@ -1,6 +1,9 @@
 package com.mykola2312.mptv.ui;
 
 import javax.swing.*;
+
+import org.apache.log4j.Logger;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -68,19 +71,23 @@ public class MenuPanel extends JPanel {
         switch (action) {
             case ACTION_UP -> {
                 switch (menuPosition) {
-                    case MENU_CATEGORIES -> categoryIndex = (categoryIndex - 1) % categoryData.length;
-                    case MENU_CHANNELS -> channelIndex = (channelIndex - 1) % channelData.length;
+                    case MENU_CATEGORIES -> categoryIndex--;
+                    case MENU_CHANNELS -> channelIndex--;
                 }
             }
             case ACTION_DOWN ->  {
                 switch (menuPosition) {
-                    case MENU_CATEGORIES -> categoryIndex = (categoryIndex + 1) % categoryData.length;
-                    case MENU_CHANNELS -> channelIndex = (channelIndex + 1) % channelData.length;
+                    case MENU_CATEGORIES -> categoryIndex++;
+                    case MENU_CHANNELS -> channelIndex++;
                 }
             }
             case ACTION_LEFT -> menuPosition = MenuPosition.MENU_CATEGORIES;
             case ACTION_RIGHT -> menuPosition = MenuPosition.MENU_CHANNELS;
         }
+        if (categoryIndex < 0) categoryIndex = 0;
+        if (channelIndex < 0) channelIndex = 0;
+        categoryIndex = categoryIndex % categoryData.length;
+        channelIndex = channelIndex % channelData.length;
 
         switch (menuPosition) {
             case MENU_CATEGORIES -> {
@@ -98,22 +105,27 @@ public class MenuPanel extends JPanel {
                 channelList.ensureIndexIsVisible(channelIndex);
             }
         }
+
+        // TODO: delete this
+        Logger.getLogger(MenuPanel.class).info(action);
     }
 
     public MenuPanel(Font font) {
         super(new BorderLayout());
         setFont(font);
 
-        final JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        //final JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        final LogPanel logPanel = new LogPanel(Logger.getRootLogger());
         final JPanel categoryPanel = new JPanel(new BorderLayout());
         final JPanel channelPanel = new JPanel(new BorderLayout());
 
         final JSplitPane hsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, categoryPanel, channelPanel);
         hsp.setDividerLocation(0.35);
 
-        final JSplitPane vsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, statusPanel, hsp);
+        final JSplitPane vsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, logPanel, hsp);
         vsp.setDividerSize(2);
         vsp.setContinuousLayout(true);
+        vsp.setDividerLocation(0.10);
         add(vsp);
 
         String[] items = new String[128];
@@ -127,8 +139,6 @@ public class MenuPanel extends JPanel {
         categoryListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         categoryListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         categoryPanel.add(categoryListScroll, BorderLayout.CENTER);
-
-        statusPanel.add(new JButton("status"));
 
         setChannels(items);
 
