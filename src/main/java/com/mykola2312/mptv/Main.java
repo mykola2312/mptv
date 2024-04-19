@@ -45,11 +45,19 @@ public class Main {
         }
 
         if (config.db == null) {
-            logger.fatal("no database configuration. exiting.");
+            logger.fatal("no database configuration. shutting down.");
             System.exit(1);
             return;
         }
-        DB.setupFromConfig(config.db);
+        
+        try {
+            DB.setupFromConfig(config.db);
+        } catch (RuntimeException e) {
+            logger.fatal("setupFromConfig", e);
+            logger.fatal("failed to initialize database. shutting down");
+            System.exit(1);
+            return;
+        }
 
         MainFrame frame = new MainFrame();
         frame.create(config.frame);
@@ -62,16 +70,12 @@ public class Main {
         );
         flyway.migrate();
 
-        try (Connection conn = DB.getConnection()) {
-            DSLContext create = DSL.using(conn, SQLDialect.SQLITE);
-            Result<Record> result = create.select().from(TEST).fetch();
-            for (Record r : result) {
-                Integer id = r.getValue(TEST.ID);
-                String value = r.getValue(TEST.VALUE);
-                System.out.printf("%d: %s\n", id, value);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        DSLContext create = DSL.using(DB.CONFIG);
+        Result<Record> result = create.select().from(TEST).fetch();
+        for (Record r : result) {
+            Integer id = r.getValue(TEST.ID);
+            String value = r.getValue(TEST.VALUE);
+            System.out.printf("%d: %s\n", id, value);
         }
 
         logger.info("mptv started");
