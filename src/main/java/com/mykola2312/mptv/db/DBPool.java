@@ -53,6 +53,7 @@ public class DBPool implements ConnectionProvider {
 
     @Override
     public @Nullable Connection acquire() throws DataAccessException {
+        logger.debug("acquire");
         DBConnection conn;
         try {
             conn = connections
@@ -87,6 +88,8 @@ public class DBPool implements ConnectionProvider {
             if (connections.size() > POOL_LOW_CAP) {
                 connections.remove(db);
             }
+
+            logger.debug(String.format("release %s", db.toString()));
         } catch (NoSuchElementException e) {
             throw new DataAccessException("connection is not present in pool");
         }

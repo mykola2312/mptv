@@ -12,7 +12,6 @@ import org.jooq.Record;
 import org.jooq.impl.*;
 
 import java.io.IOException;
-import java.sql.Connection;
 
 public class Main {
     private static final Logger logger = Logger.getLogger(Main.class);
