@@ -1,6 +1,7 @@
 package com.mykola2312.mptv;
 
 import com.mykola2312.mptv.config.Config;
+import com.mykola2312.mptv.crawler.WebRequest;
 import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
@@ -88,6 +89,9 @@ public class Main {
             .fetchOne()
             .into(Test.class);
         System.out.printf("fetchOne -> %d: %s\n", test.id, test.value);
+
+        WebRequest get = new WebRequest("https://example.com");
+        System.out.println(get.fetch());
 
         logger.info("mptv started");
     }
