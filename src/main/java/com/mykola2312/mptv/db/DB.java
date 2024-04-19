@@ -1,4 +1,4 @@
-package com.mykola2312.mptv;
+package com.mykola2312.mptv.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

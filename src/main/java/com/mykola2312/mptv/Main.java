@@ -1,6 +1,7 @@
 package com.mykola2312.mptv;
 
 import com.mykola2312.mptv.config.Config;
+import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
