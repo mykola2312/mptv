@@ -11,5 +11,19 @@
     "url": "jdbc:sqlite:mptv.db",
     "user": "",
     "password": ""
-  }
+  },
+
+  "sources": [
+    {
+      "type": "m3u",
+      "url": "https://example.com/list.m3u",
+      "cookies": null,
+      "singleCategory": null
+    },
+    {
+      "type": "m3u-local",
+      "path": "test.m3u8",
+      "singleCategory": "test"
+    }
+  ]
 }
