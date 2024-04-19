@@ -111,7 +111,6 @@ public class MenuPanel extends JPanel {
         super(new BorderLayout());
         setFont(font);
 
-        //final JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         final LogPanel logPanel = new LogPanel(Logger.getRootLogger());
         final JPanel categoryPanel = new JPanel(new BorderLayout());
         final JPanel channelPanel = new JPanel(new BorderLayout());
