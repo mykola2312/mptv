@@ -105,9 +105,6 @@ public class MenuPanel extends JPanel {
                 channelList.ensureIndexIsVisible(channelIndex);
             }
         }
-
-        // TODO: delete this
-        Logger.getLogger(MenuPanel.class).info(action);
     }
 
     public MenuPanel(Font font) {
@@ -125,7 +122,7 @@ public class MenuPanel extends JPanel {
         final JSplitPane vsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, logPanel, hsp);
         vsp.setDividerSize(2);
         vsp.setContinuousLayout(true);
-        vsp.setDividerLocation(0.10);
+        vsp.setDividerLocation(50);
         add(vsp);
 
         String[] items = new String[128];
