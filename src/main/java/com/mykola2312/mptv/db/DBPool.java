@@ -5,7 +5,7 @@ import org.checkerframework.checker.nullness.qual.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 import org.jooq.ConnectionProvider;
@@ -17,8 +17,6 @@ public class DBPool implements ConnectionProvider {
 
     private static final Logger logger = Logger.getLogger(DBPool.class);
 
-    public static final int POOL_LOW_CAP = 4;
-
     private class DBConnection {
         public final Connection connection;
         public boolean beingUsed;
@@ -28,7 +26,9 @@ public class DBPool implements ConnectionProvider {
             this.beingUsed = beingUsed;
         }
     }
-    private LinkedList<DBConnection> connections = new LinkedList<DBConnection>();
+
+    public static final int POOL_LOW_CAP = 4;
+    private ArrayList<DBConnection> connections = new ArrayList<DBConnection>(POOL_LOW_CAP);
 
     public DBPool(String url) throws RuntimeException {
         this.url = url;
