@@ -50,6 +50,12 @@ public class M3UParser {
                     }
 
                     case URL_LINE -> {
+                        /* there may by other tags like #EXTVLCOPT that may get in the way 
+                            so for now we're just skipping them until we hit url.
+                            in future, if needed, we can extract user-agent from EXTVLCOPT */ 
+                        if (line.startsWith("#")) {
+                            continue;
+                        }
                         String url = line;
                         
                         item.url = url;

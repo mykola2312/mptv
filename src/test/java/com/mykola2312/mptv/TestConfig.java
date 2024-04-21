@@ -33,12 +33,12 @@ public class TestConfig {
                 "type": "m3u",
                 "url": "https://example.com/list.m3u",
                 "cookies": null,
-                "singleCategory": null
+                "rootCategory": "m3u"
               },
               {
                 "type": "m3u-local",
                 "path": "test.m3u8",
-                "singleCategory": "test"
+                "rootCategory": "m3u-local"
               }
             ]
           }
@@ -81,14 +81,14 @@ public class TestConfig {
         SourceItem m3u = config.sources.get(0);
         assertEquals(SourceItem.SourceType.M3U, m3u.type);
         assertEquals("https://example.com/list.m3u", m3u.url);
+        assertEquals("m3u", m3u.rootCategory);
         assertNull(m3u.path);
         assertNull(m3u.cookies);
-        assertNull(m3u.rootCategory);
 
         SourceItem m3uLocal = config.sources.get(1);
         assertEquals(SourceItem.SourceType.M3U_LOCAL, m3uLocal.type);
         assertEquals("test.m3u8", m3uLocal.path);
-        assertEquals("test", m3uLocal.rootCategory);
+        assertEquals("m3u-local", m3uLocal.rootCategory);
         assertNull(m3uLocal.url);
         assertNull(m3uLocal.cookies);
     }

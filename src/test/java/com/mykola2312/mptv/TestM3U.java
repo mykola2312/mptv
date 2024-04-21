@@ -18,6 +18,9 @@ http://example.org/video1.m3u8
 
 #EXTINF:-1 group-title="test2" ,Test title 2
 http://example.org/video2.m3u8
+#EXTINF:-1 group-title="test3",Test title 3
+#EXTVLCOPT:http-user-agent=User-Agent/1.0
+http://example.org/video3.m3u8
             """;
 
     @Test
@@ -35,6 +38,12 @@ http://example.org/video2.m3u8
         assertEquals("Test title 2", item.title);
         assertEquals("test2", item.groupTitle);
         assertEquals("http://example.org/video2.m3u8", item.url);
+        assertNull(item.tvgLogo);
+
+        item = items.get(2);
+        assertEquals("Test title 3", item.title);
+        assertEquals("test3", item.groupTitle);
+        assertEquals("http://example.org/video3.m3u8", item.url);
         assertNull(item.tvgLogo);
     }
 

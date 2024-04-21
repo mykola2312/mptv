@@ -25,6 +25,6 @@ public class SourceItem {
     @Nullable
     public String cookies;
 
-    @Nullable
+    @NonNull
     public String rootCategory;
 }
