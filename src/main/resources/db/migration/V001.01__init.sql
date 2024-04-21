@@ -15,4 +15,4 @@ CREATE TABLE channel (
     FOREIGN KEY (category) REFERENCES category(id)
 );
 
-CREATE INDEX idx_channel_title ON channel(title);
+CREATE INDEX idx_channel_category_title ON channel(category,title);

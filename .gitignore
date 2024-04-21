@@ -43,3 +43,5 @@ build/
 config.json
 *.db
 log/
+*.m3u
+*.m3u8
