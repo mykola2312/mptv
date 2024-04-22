@@ -16,6 +16,7 @@ import org.jooq.exception.NoDataFoundException;
 import org.jooq.impl.*;
 import static com.mykola2312.mptv.tables.Category.*;
 import static com.mykola2312.mptv.tables.Channel.*;
+import static com.mykola2312.mptv.tables.Source.*;
 
 import com.mykola2312.mptv.config.SourceItem;
 import com.mykola2312.mptv.parser.M3U;
@@ -23,6 +24,7 @@ import com.mykola2312.mptv.parser.M3UException;
 import com.mykola2312.mptv.parser.M3UParser;
 import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.tables.records.ChannelRecord;
+import com.mykola2312.mptv.tables.records.SourceRecord;
 
 public class Crawler {
     private static final Logger logger = Logger.getLogger(Crawler.class);
@@ -33,7 +35,25 @@ public class Crawler {
         this.sources = sources;
     }
 
-    private static Integer ensureRootCategory(String rootName) {
+    public void updateSources(List<SourceItem> sourceItems) {
+        ArrayList<UpdatableRecord<SourceRecord>> sources = new ArrayList<>();
+        for (SourceItem item : sourceItems) {
+            UpdatableRecord<SourceRecord> source = new UpdatableRecordImpl<>(SOURCE);
+            source.set(SOURCE.TYPE, item.type.getSqlName());
+            source.set(SOURCE.ROOT_NAME, item.rootCategory);
+            source.set(SOURCE.URL, item.url);
+            source.set(SOURCE.PATH, item.path);
+            source.set(SOURCE.COOKIES, item.cookies);
+
+            sources.add(source);
+        }
+
+        DSL.using(DB.CONFIG)
+            .batchMerge(sources)
+            .execute();
+    }
+
+    private Integer ensureRootCategory(String rootName) {
         try {
             return DSL.using(DB.CONFIG)
                 .select(CATEGORY.ID)
@@ -50,7 +70,7 @@ public class Crawler {
         }
     }
 
-    public static void loadAll(ArrayList<M3U> items, String rootName) {
+    public void updateAllChannels(ArrayList<M3U> items, String rootName) {
         Integer rootCategoryId = ensureRootCategory(rootName);
         HashMap<String, Integer> categories = new HashMap<>();
         // collect all groups, find or create them, cache their ids
@@ -116,7 +136,7 @@ public class Crawler {
                         String m3uData = Files.readString(Paths.get(source.path), StandardCharsets.UTF_8);
                         ArrayList<M3U> m3u = M3UParser.parse(m3uData);
 
-                        loadAll(m3u, source.rootCategory);
+                        updateAllChannels(m3u, source.rootCategory);
                     } catch (IOException e) {
                         logger.error(e);
                         logger.error(String.format("failed to read local m3u file: %s", e.getMessage()));

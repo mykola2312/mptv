@@ -10,7 +10,15 @@ public class SourceItem {
         M3U,
 
         @JsonProperty("m3u-local")
-        M3U_LOCAL
+        M3U_LOCAL;
+
+        public String getSqlName() {
+            switch (this) {
+                case M3U: return "m3u";
+                case M3U_LOCAL: return "m3u-local";
+                default: throw new RuntimeException("no sql alias for " + this.toString());
+            }
+        }
     }
 
     @NonNull
