@@ -1,4 +1,4 @@
-package com.mykola2312.mptv.db;
+package com.mykola2312.mptv.crawler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import org.jooq.impl.*;
 import static com.mykola2312.mptv.tables.Category.*;
 import static com.mykola2312.mptv.tables.Channel.*;
 
+import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.parser.M3U;
 import com.mykola2312.mptv.tables.records.ChannelRecord;
 
