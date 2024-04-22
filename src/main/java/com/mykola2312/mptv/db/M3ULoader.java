@@ -3,12 +3,14 @@ package com.mykola2312.mptv.db;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.jooq.UpdatableRecord;
 import org.jooq.exception.NoDataFoundException;
 import org.jooq.impl.*;
 import static com.mykola2312.mptv.tables.Category.*;
 import static com.mykola2312.mptv.tables.Channel.*;
 
 import com.mykola2312.mptv.parser.M3U;
+import com.mykola2312.mptv.tables.records.ChannelRecord;
 
 public class M3ULoader {
     private static Integer ensureRootCategory(String rootName) {
@@ -30,62 +32,51 @@ public class M3ULoader {
 
     public static void loadAll(ArrayList<M3U> items, String rootName) {
         Integer rootCategoryId = ensureRootCategory(rootName);
-        // cache categories' ids
         HashMap<String, Integer> categories = new HashMap<>();
+        // collect all groups, find or create them, cache their ids
         for (M3U item : items) {
-            // category
-            Integer categoryId;
-            if (item.groupTitle != null) {
-                categoryId = categories.get(item.groupTitle);
-                if (categoryId == null) {
-                    Integer id;
-                    try {
-                        id = DSL.using(DB.CONFIG)
-                            .select(CATEGORY.ID)
-                            .from(CATEGORY)
-                            .where(CATEGORY.TITLE.eq(item.groupTitle))
-                            .limit(1)
-                            .fetchSingleInto(Integer.class);
-                    } catch (NoDataFoundException e) {
-                        id = DSL.using(DB.CONFIG)
-                            .insertInto(CATEGORY, CATEGORY.TITLE)
-                            .values(item.groupTitle)
-                            .returningResult(CATEGORY.ID)
-                            .fetchOne()
-                            .into(Integer.class);
-                    }
-
-                    categories.put(item.groupTitle, id);
-                    categoryId = id;
-                }
-            } else {
-                categoryId = rootCategoryId;
+            // no category, skip
+            if (item.groupTitle == null) {
+                continue;
+            }
+            // we already have category cached
+            if (categories.get(item.groupTitle) != null) {
+                continue;
             }
 
-            // channel
+            Integer categoryId;
             try {
-                Integer channelId = DSL.using(DB.CONFIG)
-                    .select(CHANNEL.ID)
-                    .from(CHANNEL)
-                    .where(CHANNEL.CATEGORY.eq(categoryId)
-                        .and(CHANNEL.TITLE.eq(item.title)))
+                categoryId = DSL.using(DB.CONFIG)
+                    .select(CATEGORY.ID)
+                    .from(CATEGORY)
+                    .where(CATEGORY.TITLE.eq(item.groupTitle))
                     .limit(1)
                     .fetchSingleInto(Integer.class);
-                
-                DSL.using(DB.CONFIG)
-                    .update(CHANNEL)
-                    .set(CHANNEL.URL, item.url)
-                    .set(CHANNEL.LOGO, item.tvgLogo)
-                    .where(CHANNEL.ID.eq(channelId))
-                    .execute();
             } catch (NoDataFoundException e) {
-                DSL.using(DB.CONFIG)
-                    .insertInto(CHANNEL,
-                        CHANNEL.CATEGORY, CHANNEL.TITLE,
-                        CHANNEL.URL, CHANNEL.LOGO)
-                    .values(categoryId, item.title, item.url, item.tvgLogo)
-                    .execute();
+                categoryId = DSL.using(DB.CONFIG)
+                    .insertInto(CATEGORY, CATEGORY.TITLE)
+                    .values(item.groupTitle)
+                    .returningResult(CATEGORY.ID)
+                    .fetchSingleInto(Integer.class);
             }
+            categories.put(item.groupTitle, categoryId);
         }
+
+        // upsert all channels
+        ArrayList<UpdatableRecord<ChannelRecord>> channels = new ArrayList<>();
+        for (M3U item : items) {
+            UpdatableRecord<ChannelRecord> channel = new UpdatableRecordImpl<>(CHANNEL);
+            Integer categoryId = item.groupTitle != null
+                ? categories.get(item.groupTitle) : rootCategoryId;
+            channel.set(CHANNEL.CATEGORY, categoryId);
+            channel.set(CHANNEL.TITLE, item.title);
+            channel.set(CHANNEL.URL, item.url);
+            channel.set(CHANNEL.LOGO, item.tvgLogo);
+
+            channels.add(channel);
+        }
+        DSL.using(DB.CONFIG)
+            .batchMerge(channels)
+            .execute();
     }
 }

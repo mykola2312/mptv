@@ -3,7 +3,7 @@ CREATE TABLE category (
     title       TEXT    NOT NULL
 );
 
-CREATE INDEX idx_category_title ON category(title);
+CREATE UNIQUE INDEX idx_category_title ON category(title);
 
 CREATE TABLE channel (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,4 +15,4 @@ CREATE TABLE channel (
     FOREIGN KEY (category) REFERENCES category(id)
 );
 
-CREATE INDEX idx_channel_category_title ON channel(category,title);
+CREATE UNIQUE INDEX idx_channel_category_title ON channel(category,title);
