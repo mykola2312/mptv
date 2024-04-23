@@ -1,18 +1,27 @@
 package com.mykola2312.mptv.ui;
 
 import javax.swing.*;
+import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.jooq.impl.DSL;
+
+import com.mykola2312.mptv.db.DB;
+import com.mykola2312.mptv.db.pojo.Category;
+import com.mykola2312.mptv.db.pojo.Channel;
+
+import static com.mykola2312.mptv.tables.Category.*;
+import static com.mykola2312.mptv.tables.Channel.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class MenuPanel extends JPanel {
-    private String[] categoryData;
-    private JList<String> categoryList;
+    private List<Category> categoryData;
+    private JList<Category> categoryList;
 
-    private String[] channelData;
-    private JList<String> channelList;
+    private List<Channel> channelData;
+    private JList<Channel> channelList;
 
     enum MenuPosition {
         MENU_CATEGORIES,
@@ -45,26 +54,21 @@ public class MenuPanel extends JPanel {
         }
     }
 
-    public void setCategories(String[] categories) {
-        categoryIndex = 0;
-        categoryData = categories;
-        if (categoryList == null) {
-            categoryList = new JList<>(categoryData);
-            categoryList.setFont(getFont());
-        } else {
-            categoryList.setListData(categoryData);
-        }
+    private void loadCategories() {
+        categoryData = DSL.using(DB.CONFIG)
+            .select(CATEGORY.ID, CATEGORY.TITLE)
+            .from(CATEGORY)
+            .fetchInto(Category.class);
+        categoryList.setListData(categoryData.toArray(new Category[0]));
     }
 
-    public void setChannels(String[] channels) {
-        channelIndex = 0;
-        channelData = channels;
-        if (channelList == null) {
-            channelList = new JList<>(channelData);
-            channelList.setFont(getFont());
-        } else {
-            channelList.setListData(channelData);
-        }
+    private void loadChannels(Integer categoryId) {
+        channelData = DSL.using(DB.CONFIG)
+            .select(CHANNEL.ID, CHANNEL.TITLE)
+            .from(CHANNEL)
+            .where(CHANNEL.CATEGORY.eq(categoryId))
+            .fetchInto(Channel.class);
+        channelList.setListData(channelData.toArray(new Channel[0]));
     }
 
     public void handleMenuAction(MenuAction action) {
@@ -86,11 +90,14 @@ public class MenuPanel extends JPanel {
         }
         if (categoryIndex < 0) categoryIndex = 0;
         if (channelIndex < 0) channelIndex = 0;
-        categoryIndex = categoryIndex % categoryData.length;
-        channelIndex = channelIndex % channelData.length;
+        
+        if (categoryData != null) categoryIndex = categoryIndex % categoryData.size();
+        if (channelData != null) channelIndex = channelIndex % channelData.size();
 
         switch (menuPosition) {
             case MENU_CATEGORIES -> {
+                loadCategories();
+
                 categoryList.setEnabled(true);
                 channelList.setEnabled(false);
 
@@ -98,6 +105,8 @@ public class MenuPanel extends JPanel {
                 categoryList.ensureIndexIsVisible(categoryIndex);
             }
             case MENU_CHANNELS -> {
+                loadChannels(categoryData.get(categoryIndex).id);
+
                 categoryList.setEnabled(false);
                 channelList.setEnabled(true);
 
@@ -129,14 +138,16 @@ public class MenuPanel extends JPanel {
             items[i] = "item" + i;
         }
 
-        setCategories(items);
+        categoryList = new JList<Category>();
+        categoryList.setFont(getFont());
 
         final JScrollPane categoryListScroll = new JScrollPane(categoryList);
         categoryListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         categoryListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         categoryPanel.add(categoryListScroll, BorderLayout.CENTER);
 
-        setChannels(items);
+        channelList = new JList<Channel>();
+        channelList.setFont(getFont());
 
         final JScrollPane channelListScroll = new JScrollPane(channelList);
         channelListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -158,5 +169,7 @@ public class MenuPanel extends JPanel {
         menuPosition = MenuPosition.MENU_CATEGORIES;
         categoryList.setEnabled(true);
         channelList.setEnabled(false);
+
+        loadCategories();
     }
 }

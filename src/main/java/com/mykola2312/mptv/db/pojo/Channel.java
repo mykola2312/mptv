@@ -17,4 +17,9 @@ public class Channel {
 
     @Column(name = "LOGO")
     public String logo;
+
+    @Override
+    public String toString() {
+        return title;
+    }
 }

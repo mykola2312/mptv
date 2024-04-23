@@ -8,4 +8,9 @@ public class Category {
 
     @Column(name = "TITLE")
     public String title;
+
+    @Override()
+    public String toString() {
+        return title;
+    }
 }
