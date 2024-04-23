@@ -2,12 +2,11 @@ CREATE TABLE source (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     type        TEXT    NOT NULL,
     root_name   TEXT    NOT NULL,
-    url         TEXT,
-    path        TEXT,
+    url_or_path TEXT    NOT NULL,
     cookies     TEXT
 );
 
-CREATE UNIQUE INDEX idx_source_url_path ON source(url,path);
+CREATE UNIQUE INDEX idx_source_url_or_path ON source(url_or_path);
 
 CREATE TABLE crawl (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,

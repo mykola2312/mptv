@@ -43,8 +43,7 @@ public class Crawler {
             UpdatableRecord<SourceRecord> source = new UpdatableRecordImpl<>(SOURCE);
             source.set(SOURCE.TYPE, item.type.getSqlName());
             source.set(SOURCE.ROOT_NAME, item.rootCategory);
-            source.set(SOURCE.URL, item.url);
-            source.set(SOURCE.PATH, item.path);
+            source.set(SOURCE.URL_OR_PATH, item.url != null ? item.url : item.path);
             source.set(SOURCE.COOKIES, item.cookies);
 
             sources.add(source);
@@ -144,7 +143,7 @@ public class Crawler {
             switch (source.type) {
                 case "m3u-local" -> {
                     try {
-                        if (source.path == null) {
+                        if (source.urlOrPath == null) {
                             logger.error("m3u local has to have \"path\" variable");
                             continue;
                         } else if (source.rootName == null) {
@@ -152,7 +151,7 @@ public class Crawler {
                             continue;
                         }
 
-                        String m3uData = Files.readString(Paths.get(source.path), StandardCharsets.UTF_8);
+                        String m3uData = Files.readString(Paths.get(source.urlOrPath), StandardCharsets.UTF_8);
                         ArrayList<M3U> m3u = M3UParser.parse(m3uData);
 
                         updateAllChannels(m3u, source.rootName);

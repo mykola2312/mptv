@@ -12,11 +12,8 @@ public class Source {
     @Column(name = "ROOT_NAME")
     public String rootName;
 
-    @Column(name = "URL")
-    public String url;
-
-    @Column(name = "PATH")
-    public String path;
+    @Column(name = "URL_OR_PATH")
+    public String urlOrPath;
 
     @Column(name = "COOKIES")
     public String cookies;
