@@ -144,6 +144,17 @@
                             <name>org.jooq.meta.sqlite.SQLiteDatabase</name>
                             <includes>.*</includes>
                             <excludes>flyway_schema_history</excludes>
+                            <!-- force jooq use long type for sqlite's integer timestamps -->
+                            <forcedTypes>
+                                <forcedType>
+                                    <includeExpression>CRAWLED_AT</includeExpression>
+                                    <name>BIGINT</name>
+                                </forcedType>
+                                <forcedType>
+                                    <includeExpression>LAST_TIME</includeExpression>
+                                    <name>BIGINT</name>
+                                </forcedType>
+                            </forcedTypes>
                         </database>
                         <generate>
                             <records>true</records>

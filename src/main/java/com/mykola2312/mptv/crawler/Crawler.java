@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,22 +18,23 @@ import org.jooq.impl.*;
 import static com.mykola2312.mptv.tables.Category.*;
 import static com.mykola2312.mptv.tables.Channel.*;
 import static com.mykola2312.mptv.tables.Source.*;
+import static com.mykola2312.mptv.tables.Crawl.*;
 
 import com.mykola2312.mptv.config.SourceItem;
 import com.mykola2312.mptv.parser.M3U;
 import com.mykola2312.mptv.parser.M3UException;
 import com.mykola2312.mptv.parser.M3UParser;
 import com.mykola2312.mptv.db.DB;
+import com.mykola2312.mptv.db.pojo.Source;
 import com.mykola2312.mptv.tables.records.ChannelRecord;
 import com.mykola2312.mptv.tables.records.SourceRecord;
 
 public class Crawler {
     private static final Logger logger = Logger.getLogger(Crawler.class);
 
-    private final List<SourceItem> sources;
+    private Integer crawlId;
 
-    public Crawler(List<SourceItem> sources) {
-        this.sources = sources;
+    public Crawler() {
     }
 
     public void updateSources(List<SourceItem> sourceItems) {
@@ -51,6 +53,13 @@ public class Crawler {
         DSL.using(DB.CONFIG)
             .batchMerge(sources)
             .execute();
+    }
+
+    private List<Source> loadSources() {
+        return DSL.using(DB.CONFIG)
+            .select()
+            .from(SOURCE)
+            .fetchInto(Source.class);
     }
 
     private Integer ensureRootCategory(String rootName) {
@@ -112,6 +121,7 @@ public class Crawler {
             channel.set(CHANNEL.TITLE, item.title);
             channel.set(CHANNEL.URL, item.url);
             channel.set(CHANNEL.LOGO, item.tvgLogo);
+            channel.set(CHANNEL.CRAWL, crawlId);
 
             channels.add(channel);
         }
@@ -120,15 +130,24 @@ public class Crawler {
             .execute();
     }
 
+    private Integer beginCrawl() {
+        return DSL.using(DB.CONFIG)
+            .insertInto(CRAWL, CRAWL.CRAWLED_AT)
+            .values(Instant.now().toEpochMilli() / 1000L)
+            .returningResult(CRAWL.ID)
+            .fetchSingleInto(Integer.class);
+    }
+
     public void crawl() {
-        for (SourceItem source : sources) {
+        crawlId = beginCrawl();
+        for (Source source : loadSources()) {
             switch (source.type) {
-                case M3U_LOCAL -> {
+                case "m3u-local" -> {
                     try {
                         if (source.path == null) {
                             logger.error("m3u local has to have \"path\" variable");
                             continue;
-                        } else if (source.rootCategory == null) {
+                        } else if (source.rootName == null) {
                             logger.error("source has to have \"rootCategory\"");
                             continue;
                         }
@@ -136,7 +155,7 @@ public class Crawler {
                         String m3uData = Files.readString(Paths.get(source.path), StandardCharsets.UTF_8);
                         ArrayList<M3U> m3u = M3UParser.parse(m3uData);
 
-                        updateAllChannels(m3u, source.rootCategory);
+                        updateAllChannels(m3u, source.rootName);
                     } catch (IOException e) {
                         logger.error(e);
                         logger.error(String.format("failed to read local m3u file: %s", e.getMessage()));
@@ -147,7 +166,7 @@ public class Crawler {
                 }
 
                 default -> {
-                    logger.error(String.format("source type %s is not implemented yet :(", source.type.name()));
+                    logger.error(String.format("source type %s is not implemented yet :(", source.type));
                 }
             }
         }

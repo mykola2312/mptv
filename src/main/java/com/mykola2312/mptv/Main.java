@@ -69,7 +69,8 @@ public class Main {
         flyway.migrate();
 
         // load sources, start crawlers
-        Crawler crawler = new Crawler(config.sources);
+        Crawler crawler = new Crawler();
+        crawler.updateSources(config.sources);
         crawler.crawl();
 
         // initialize ui
