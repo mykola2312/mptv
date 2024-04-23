@@ -97,6 +97,7 @@ public class MenuPanel extends JPanel {
         switch (menuPosition) {
             case MENU_CATEGORIES -> {
                 loadCategories();
+                channelIndex = 0;
 
                 categoryList.setEnabled(true);
                 channelList.setEnabled(false);
@@ -132,11 +133,6 @@ public class MenuPanel extends JPanel {
         vsp.setContinuousLayout(true);
         vsp.setDividerLocation(50);
         add(vsp);
-
-        String[] items = new String[128];
-        for (int i = 0; i < 128; i++) {
-            items[i] = "item" + i;
-        }
 
         categoryList = new JList<Category>();
         categoryList.setFont(getFont());
