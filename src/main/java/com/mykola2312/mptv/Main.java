@@ -6,13 +6,14 @@ import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.task.TaskDispatcher;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
-import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class Main {
-    private static final Logger logger = Logger.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         // parse command line
@@ -27,7 +28,7 @@ public class Main {
         try {
             cmd = new DefaultParser().parse(options, args);
         } catch (ParseException e) {
-            logger.fatal(e.toString());
+            logger.error(e.toString());
             System.exit(1);
             return;
         }
@@ -38,13 +39,13 @@ public class Main {
         try {
             config = Config.loadConfig(configPath);
         } catch (IOException e) {
-            logger.fatal(String.format("failed to read config: %s\n", e.toString()));
+            logger.error(String.format("failed to read config: %s\n", e.toString()));
             System.exit(1);
             return;
         }
 
         if (config.db == null) {
-            logger.fatal("no database configuration. shutting down.");
+            logger.error("no database configuration. shutting down.");
             System.exit(1);
             return;
         }
@@ -53,8 +54,8 @@ public class Main {
         try {
             DB.setupFromConfig(config.db);
         } catch (RuntimeException e) {
-            logger.fatal("setupFromConfig", e);
-            logger.fatal("failed to initialize database. shutting down");
+            logger.error("setupFromConfig", e);
+            logger.error("failed to initialize database. shutting down");
             System.exit(1);
             return;
         }

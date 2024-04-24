@@ -2,7 +2,8 @@ package com.mykola2312.mptv.crawler;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -31,7 +32,7 @@ import com.mykola2312.mptv.tables.records.SourceRecord;
 import com.mykola2312.mptv.task.Task;
 
 public class Crawler implements Task {
-    private static final Logger logger = Logger.getLogger(Crawler.class);
+    private static final Logger logger = LoggerFactory.getLogger(Crawler.class);
 
     private Integer crawlId;
 
@@ -157,10 +158,10 @@ public class Crawler implements Task {
 
                         updateAllChannels(m3u, source.rootName);
                     } catch (IOException e) {
-                        logger.error(e);
+                        logger.error(e.toString());
                         logger.error(String.format("failed to read local m3u file: %s", e.getMessage()));
                     } catch (M3UException e) {
-                        logger.error(e);
+                        logger.error(e.toString());
                         logger.error(String.format("failed to parse m3u: %s", e.getMessage()));
                     }
                 }

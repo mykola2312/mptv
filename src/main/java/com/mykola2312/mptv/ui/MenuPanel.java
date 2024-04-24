@@ -3,7 +3,8 @@ package com.mykola2312.mptv.ui;
 import javax.swing.*;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jooq.impl.DSL;
 
 import com.mykola2312.mptv.db.DB;
@@ -121,7 +122,8 @@ public class MenuPanel extends JPanel {
         super(new BorderLayout());
         setFont(font);
 
-        final LogPanel logPanel = new LogPanel(Logger.getRootLogger());
+        //final LogPanel logPanel = new LogPanel(LoggerFactory.getRootLogger());
+        final JPanel logPanel = new JPanel();
         final JPanel categoryPanel = new JPanel(new BorderLayout());
         final JPanel channelPanel = new JPanel(new BorderLayout());
 

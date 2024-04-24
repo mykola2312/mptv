@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jooq.*;
 import org.jooq.exception.NoDataFoundException;
 import org.jooq.impl.*;
@@ -16,7 +17,7 @@ import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.tables.records.TaskRecord;
 
 public class TaskDispatcher implements Runnable {
-    private static final Logger logger = Logger.getLogger(TaskDispatcher.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaskDispatcher.class);
 
     private final HashMap<String, Task> taskHandles = new HashMap<>();
     private boolean isRunning = false;
@@ -57,7 +58,7 @@ public class TaskDispatcher implements Runnable {
         try {
             task.dispatch();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.toString());
         }
         
         DSL.using(DB.CONFIG)

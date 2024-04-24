@@ -5,7 +5,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.http.client.ClientProtocolException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO: make more useful this stub exception
 public class WebException extends RuntimeException {
@@ -17,7 +18,7 @@ public class WebException extends RuntimeException {
 
     public final Type type;
 
-    protected static final Logger logger = Logger.getLogger(WebException.class);
+    protected static final Logger logger = LoggerFactory.getLogger(WebException.class);
     protected void log() {
         logger.warn(String.format("%s: %s", type.name(), this.getCause().getMessage()));
     }

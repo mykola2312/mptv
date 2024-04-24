@@ -1,6 +1,7 @@
 package com.mykola2312.mptv.db;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.checkerframework.checker.nullness.qual.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,7 +16,7 @@ import org.jooq.exception.DataAccessException;
 public class DBPool implements ConnectionProvider {
     private String url;
 
-    private static final Logger logger = Logger.getLogger(DBPool.class);
+    private static final Logger logger = LoggerFactory.getLogger(DBPool.class);
 
     private class DBConnection {
         public final Connection connection;

@@ -3,13 +3,14 @@ package com.mykola2312.mptv.crawler;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WebContent {
     public int status;
     public String body = null;
 
-    private static final Logger logger = Logger.getLogger(WebContent.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebContent.class);
 
     public WebContent(HttpResponse response) {
         this.status = response.getStatusLine().getStatusCode();
@@ -19,7 +20,7 @@ public class WebContent {
                 this.body = EntityUtils.toString(entity, "UTF-8");
             } catch (Exception e) {
                 logger.warn(String.format("failed to get content for %s: %s", response.toString()));
-                logger.warn(e);
+                logger.warn(e.toString());
             }
         }
     }
