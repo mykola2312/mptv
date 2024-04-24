@@ -37,7 +37,8 @@ CREATE UNIQUE INDEX idx_channel_category_title ON channel(category,title);
 CREATE TABLE task (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     name        TEXT    NOT NULL,
-    last_time   INTEGER NOT NULL
+    interval    INTEGER NOT NULL,
+    last_time   INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNIQUE INDEX idx_task_name ON task(name);

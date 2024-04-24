@@ -3,6 +3,7 @@ package com.mykola2312.mptv;
 import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.crawler.Crawler;
 import com.mykola2312.mptv.db.DB;
+import com.mykola2312.mptv.task.TaskDispatcher;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
@@ -72,6 +73,13 @@ public class Main {
         Crawler crawler = new Crawler();
         crawler.updateSources(config.sources);
         crawler.crawl();
+
+        // task dispatcher
+        TaskDispatcher dispatcher = new TaskDispatcher();
+        dispatcher.updateTaskConfig(config.tasks);
+        dispatcher.registerTask(crawler);
+
+        new Thread(dispatcher).start();
 
         // initialize ui
         MainFrame frame = new MainFrame();

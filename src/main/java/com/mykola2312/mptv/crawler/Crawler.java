@@ -28,8 +28,9 @@ import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.db.pojo.Source;
 import com.mykola2312.mptv.tables.records.ChannelRecord;
 import com.mykola2312.mptv.tables.records.SourceRecord;
+import com.mykola2312.mptv.task.Task;
 
-public class Crawler {
+public class Crawler implements Task {
     private static final Logger logger = Logger.getLogger(Crawler.class);
 
     private Integer crawlId;
@@ -38,7 +39,7 @@ public class Crawler {
     }
 
     public void updateSources(List<SourceItem> sourceItems) {
-        ArrayList<UpdatableRecord<SourceRecord>> sources = new ArrayList<>();
+        ArrayList<UpdatableRecord<SourceRecord>> sources = new ArrayList<>(sourceItems.size());
         for (SourceItem item : sourceItems) {
             UpdatableRecord<SourceRecord> source = new UpdatableRecordImpl<>(SOURCE);
             source.set(SOURCE.TYPE, item.type.getSqlName());
@@ -111,7 +112,7 @@ public class Crawler {
         }
 
         // upsert all channels
-        ArrayList<UpdatableRecord<ChannelRecord>> channels = new ArrayList<>();
+        ArrayList<UpdatableRecord<ChannelRecord>> channels = new ArrayList<>(items.size());
         for (M3U item : items) {
             UpdatableRecord<ChannelRecord> channel = new UpdatableRecordImpl<>(CHANNEL);
             Integer categoryId = item.groupTitle != null
@@ -169,5 +170,17 @@ public class Crawler {
                 }
             }
         }
+    }
+
+    private static final String TASK_NAME = "crawler";
+
+    @Override
+    public String getTaskName() {
+        return TASK_NAME;
+    }
+
+    @Override
+    public void dispatch() {
+        crawl();
     }
 }

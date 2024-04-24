@@ -25,5 +25,12 @@
       "path": "test.m3u8",
       "rootCategory": "test"
     }
+  ],
+
+  "tasks": [
+    {
+      "name": "crawler",
+      "interval": 60
+    }
   ]
 }
