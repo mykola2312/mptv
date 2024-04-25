@@ -4,6 +4,7 @@ import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.crawler.Crawler;
 import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.mpv.MPV;
+import com.mykola2312.mptv.task.ProcessService;
 import com.mykola2312.mptv.task.TaskDispatcher;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
@@ -81,6 +82,9 @@ public class Main {
         dispatcher.updateTaskConfig(config.tasks);
         dispatcher.registerTask(crawler);
 
+        ProcessService processService = new ProcessService();
+        dispatcher.registerTask(processService);
+
         new Thread(dispatcher).start();
 
         // initialize ui
@@ -90,6 +94,8 @@ public class Main {
         try {
             MPV mpv = new MPV("test.mp4");
             logger.info("spawned mpv");
+
+            processService.registerProcess(mpv);
         } catch (IOException e) {
             logger.error("failed to start mpv", e);
         }

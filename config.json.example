@@ -31,6 +31,10 @@
     {
       "name": "crawler",
       "interval": 60
+    },
+    {
+      "name": "processService",
+      "interval": 1
     }
   ]
 }
