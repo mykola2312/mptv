@@ -3,6 +3,7 @@ package com.mykola2312.mptv;
 import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.crawler.Crawler;
 import com.mykola2312.mptv.db.DB;
+import com.mykola2312.mptv.mpv.MPV;
 import com.mykola2312.mptv.task.TaskDispatcher;
 import com.mykola2312.mptv.ui.MainFrame;
 import org.apache.commons.cli.*;
@@ -83,8 +84,15 @@ public class Main {
         new Thread(dispatcher).start();
 
         // initialize ui
-        MainFrame frame = new MainFrame();
-        frame.create(config.frame);
+        // MainFrame frame = new MainFrame();
+        // frame.create(config.frame);
+
+        try {
+            MPV mpv = new MPV("test.mp4");
+            logger.info("spawned mpv");
+        } catch (IOException e) {
+            logger.error("failed to start mpv", e);
+        }
 
         logger.info("mptv started");
     }
