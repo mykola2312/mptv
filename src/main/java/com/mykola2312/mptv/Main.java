@@ -73,14 +73,14 @@ public class Main {
         flyway.migrate();
 
         // load sources, start crawlers
-        Crawler crawler = new Crawler();
-        crawler.updateSources(config.sources);
-        crawler.crawl();
+        // Crawler crawler = new Crawler();
+        // crawler.updateSources(config.sources);
+        // crawler.crawl();
 
         // task dispatcher
         TaskDispatcher dispatcher = new TaskDispatcher();
         dispatcher.updateTaskConfig(config.tasks);
-        dispatcher.registerTask(crawler);
+        //dispatcher.registerTask(crawler); // TODO: enable
 
         ProcessService processService = new ProcessService();
         dispatcher.registerTask(processService);
@@ -93,9 +93,13 @@ public class Main {
 
         try {
             MPV mpv = new MPV("test.mp4");
-            logger.info("spawned mpv");
+            if (mpv.spawn()) {
+                logger.info("spawned mpv");
 
-            processService.registerProcess(mpv);
+                processService.registerProcess(mpv);
+            } else {
+                logger.error("failed to spawn mpv");
+            }
         } catch (IOException e) {
             logger.error("failed to start mpv", e);
         }
