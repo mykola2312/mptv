@@ -9,8 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public abstract class MPVCommand {
     private int requestId;
 
-    public void setRequestId(int requestId) {
+    public int setRequestId(int requestId) {
         this.requestId = requestId;
+        return this.requestId;
     }
 
     protected abstract List<String> serializeCommand();

@@ -4,6 +4,9 @@ import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.crawler.Crawler;
 import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.mpv.MPV;
+import com.mykola2312.mptv.mpv.MPVCommandResult;
+import com.mykola2312.mptv.mpv.MPVProperty;
+import com.mykola2312.mptv.mpv.MPVSetProperty;
 import com.mykola2312.mptv.task.ProcessService;
 import com.mykola2312.mptv.task.TaskDispatcher;
 import com.mykola2312.mptv.ui.MainFrame;
@@ -97,6 +100,13 @@ public class Main {
                 logger.info("spawned mpv");
 
                 processService.registerProcess(mpv);
+
+                for (int i = 0; i < 10; i++) {
+                    MPVCommandResult result = mpv.writeCommand(new MPVSetProperty(MPVProperty.VOLUME, 0));
+                    if (result != null) {
+                        logger.info(String.format("command %d status: %s", result.request_id, result.error));
+                    }
+                }
             } else {
                 logger.error("failed to spawn mpv");
             }
