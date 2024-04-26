@@ -30,6 +30,7 @@ public class ProcessService implements Task {
         for (TaskProcess process : processes) {
             if (!process.isAlive()) {
                 try {
+                    process.stop();
                     process.spawn();
                 } catch (Exception e) {
                     logger.error("failed to respawn process: ", e);
