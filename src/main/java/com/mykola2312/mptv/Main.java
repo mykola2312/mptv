@@ -3,10 +3,6 @@ package com.mykola2312.mptv;
 import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.crawler.Crawler;
 import com.mykola2312.mptv.db.DB;
-import com.mykola2312.mptv.mpv.MPV;
-import com.mykola2312.mptv.mpv.MPVCommandResult;
-import com.mykola2312.mptv.mpv.MPVProperty;
-import com.mykola2312.mptv.mpv.MPVSetProperty;
 import com.mykola2312.mptv.task.ProcessService;
 import com.mykola2312.mptv.task.TaskDispatcher;
 import com.mykola2312.mptv.ui.MainFrame;
@@ -19,6 +15,8 @@ import java.io.IOException;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
+    public static ProcessService processService = new ProcessService();
 
     public static void main(String[] args) {
         // parse command line
@@ -85,34 +83,13 @@ public class Main {
         dispatcher.updateTaskConfig(config.tasks);
         //dispatcher.registerTask(crawler); // TODO: enable
 
-        ProcessService processService = new ProcessService();
         dispatcher.registerTask(processService);
 
         new Thread(dispatcher).start();
 
         // initialize ui
-        // MainFrame frame = new MainFrame();
-        // frame.create(config.frame);
-
-        try {
-            MPV mpv = new MPV("test.mp4");
-            if (mpv.spawn()) {
-                logger.info("spawned mpv");
-
-                processService.registerProcess(mpv);
-
-                for (int i = 0; i < 10; i++) {
-                    MPVCommandResult result = mpv.writeCommand(new MPVSetProperty(MPVProperty.VOLUME, 0));
-                    if (result != null) {
-                        logger.info(String.format("command %d status: %s", result.request_id, result.error));
-                    }
-                }
-            } else {
-                logger.error("failed to spawn mpv");
-            }
-        } catch (IOException e) {
-            logger.error("failed to start mpv", e);
-        }
+        MainFrame frame = new MainFrame();
+        frame.create(config.frame);
 
         logger.info("mptv started");
     }

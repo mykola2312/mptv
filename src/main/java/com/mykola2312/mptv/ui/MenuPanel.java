@@ -3,21 +3,28 @@ package com.mykola2312.mptv.ui;
 import javax.swing.*;
 import java.util.List;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.jooq.exception.NoDataFoundException;
 import org.jooq.impl.DSL;
 
+import com.mykola2312.mptv.Main;
 import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.db.pojo.Category;
 import com.mykola2312.mptv.db.pojo.Channel;
+import com.mykola2312.mptv.mpv.MPV;
 
 import static com.mykola2312.mptv.tables.Category.*;
 import static com.mykola2312.mptv.tables.Channel.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 public class MenuPanel extends JPanel {
+    private static final Logger logger = LoggerFactory.getLogger(MenuPanel.class);
+
     private List<Category> categoryData;
     private JList<Category> categoryList;
 
@@ -37,8 +44,11 @@ public class MenuPanel extends JPanel {
         ACTION_UP,
         ACTION_DOWN,
         ACTION_LEFT,
-        ACTION_RIGHT
+        ACTION_RIGHT,
+        ACTION_OPEN
     }
+
+    private MPV player = null;
 
     static class KeyboardMenuAction extends AbstractAction {
         private final MenuPanel menu;
@@ -72,7 +82,31 @@ public class MenuPanel extends JPanel {
         channelList.setListData(channelData.toArray(new Channel[0]));
     }
 
+    private void openPlayer(String url) {
+        if (player != null) {
+            closePlayer();
+        }
+
+        MPV newPlayer = new MPV(url);
+        try {
+            if (newPlayer.spawn()) {
+                player = newPlayer;
+
+                Main.processService.registerProcess(player);
+            }
+        } catch (IOException e) {
+            logger.error("failed to spawn player", e);
+        }
+    }
+
+    private void closePlayer() {
+        Main.processService.unregisterProcess(player);
+        player.stop();
+        player = null;
+    }
+
     public void handleMenuAction(MenuAction action) {
+        MenuPosition newMenuPosition = menuPosition;
         switch (action) {
             case ACTION_UP -> {
                 switch (menuPosition) {
@@ -86,8 +120,28 @@ public class MenuPanel extends JPanel {
                     case MENU_CHANNELS -> channelIndex++;
                 }
             }
-            case ACTION_LEFT -> menuPosition = MenuPosition.MENU_CATEGORIES;
-            case ACTION_RIGHT -> menuPosition = MenuPosition.MENU_CHANNELS;
+            case ACTION_LEFT -> newMenuPosition = MenuPosition.MENU_CATEGORIES;
+            case ACTION_RIGHT -> newMenuPosition = MenuPosition.MENU_CHANNELS;
+
+            case ACTION_OPEN -> {
+                if (menuPosition == MenuPosition.MENU_CHANNELS) {
+                    // we're going to open channel, lets fetch data
+                    Channel selectedChannel = channelData.get(channelIndex);
+                    try {
+                        String url = DSL.using(DB.CONFIG)
+                            .select(CHANNEL.URL)
+                            .from(CHANNEL)
+                            .where(CHANNEL.ID.eq(selectedChannel.id))
+                            .limit(1)
+                            .fetchSingleInto(String.class);
+                        
+                        openPlayer(url);
+                    } catch (NoDataFoundException e) {
+                        // well, channel disappeared from database just atm we tried to open it
+                        logger.warn(String.format("channel %d not found. deleted?", selectedChannel.id));
+                    }
+                }
+            }
         }
         if (categoryIndex < 0) categoryIndex = 0;
         if (channelIndex < 0) channelIndex = 0;
@@ -95,9 +149,10 @@ public class MenuPanel extends JPanel {
         if (categoryData != null) categoryIndex = categoryIndex % categoryData.size();
         if (channelData != null) channelIndex = channelIndex % channelData.size();
 
-        switch (menuPosition) {
+        boolean load = !newMenuPosition.equals(menuPosition);
+        switch (newMenuPosition) {
             case MENU_CATEGORIES -> {
-                loadCategories();
+                if (load) loadCategories();
                 channelIndex = 0;
 
                 categoryList.setEnabled(true);
@@ -107,7 +162,7 @@ public class MenuPanel extends JPanel {
                 categoryList.ensureIndexIsVisible(categoryIndex);
             }
             case MENU_CHANNELS -> {
-                loadChannels(categoryData.get(categoryIndex).id);
+                if (load) loadChannels(categoryData.get(categoryIndex).id);
 
                 categoryList.setEnabled(false);
                 channelList.setEnabled(true);
@@ -116,6 +171,7 @@ public class MenuPanel extends JPanel {
                 channelList.ensureIndexIsVisible(channelIndex);
             }
         }
+        if (load) menuPosition = newMenuPosition;
     }
 
     public MenuPanel(Font font) {
@@ -158,11 +214,13 @@ public class MenuPanel extends JPanel {
         getInputMap(IFW).put(KeyStroke.getKeyStroke("S"), "S");
         getInputMap(IFW).put(KeyStroke.getKeyStroke("A"), "A");
         getInputMap(IFW).put(KeyStroke.getKeyStroke("D"), "D");
+        getInputMap(IFW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ENTER");
 
         getActionMap().put("W", new KeyboardMenuAction(this, MenuAction.ACTION_UP));
         getActionMap().put("S", new KeyboardMenuAction(this, MenuAction.ACTION_DOWN));
         getActionMap().put("A", new KeyboardMenuAction(this, MenuAction.ACTION_LEFT));
         getActionMap().put("D", new KeyboardMenuAction(this, MenuAction.ACTION_RIGHT));
+        getActionMap().put("ENTER", new KeyboardMenuAction(this, MenuAction.ACTION_OPEN));
 
         menuPosition = MenuPosition.MENU_CATEGORIES;
         categoryList.setEnabled(true);
