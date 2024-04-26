@@ -46,12 +46,11 @@ public class MPVSocket {
         }
     }
 
-    public void writeCommandRaw(MPVCommandRaw command) {
+    public void writeCommand(MPVCommand command) {
         try {
             AFOutputStream output = socket.getOutputStream();
-
+            
             output.write(command.serialize());
-            output.write('\n');
             output.flush();
         } catch (JsonProcessingException e) {
             logger.error("failed to serialize command", e);

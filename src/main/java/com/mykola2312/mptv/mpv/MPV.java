@@ -31,8 +31,7 @@ public class MPV implements TaskProcess {
         socket = new MPVSocket();
         socket.waitForConnection(MPV_SOCKET_PATH);
 
-        // TODO: remove test code
-        socket.writeCommandRaw(new MPVCommandRaw("set_property", "volume", "0"));
+        socket.writeCommand(new MPVSetProperty(MPVProperty.VOLUME, 0));
 
         return isAlive();
     }
