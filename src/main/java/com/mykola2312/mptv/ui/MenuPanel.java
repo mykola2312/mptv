@@ -40,14 +40,6 @@ public class MenuPanel extends JPanel {
     private int categoryIndex;
     private int channelIndex;
 
-    enum MenuAction {
-        ACTION_UP,
-        ACTION_DOWN,
-        ACTION_LEFT,
-        ACTION_RIGHT,
-        ACTION_OPEN
-    }
-
     private MPV player = null;
 
     static class KeyboardMenuAction extends AbstractAction {
