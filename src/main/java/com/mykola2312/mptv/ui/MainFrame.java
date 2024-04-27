@@ -12,7 +12,8 @@ public class MainFrame {
     private void spawn(FrameConfig config) {
         Font font = new Font(config.fontName, Font.PLAIN, config.fontSize);
 
-        frame = new JFrame(I18n.get("MainFrame_Title"));
+        //frame = new JFrame(I18n.get("MainFrame_Title"));
+        frame = new JFrame("MPTV");
 
         menu = new MenuPanel(font);
         frame.add(menu, BorderLayout.CENTER);

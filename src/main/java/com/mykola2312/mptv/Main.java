@@ -75,9 +75,9 @@ public class Main {
         flyway.migrate();
 
         // load sources, start crawlers
-        // Crawler crawler = new Crawler();
-        // crawler.updateSources(config.sources);
-        // crawler.crawl();
+        Crawler crawler = new Crawler();
+        crawler.updateSources(config.sources);
+        crawler.crawl();
 
         // task dispatcher
         TaskDispatcher dispatcher = new TaskDispatcher();
