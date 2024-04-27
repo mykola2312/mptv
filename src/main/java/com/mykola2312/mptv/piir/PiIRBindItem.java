@@ -9,7 +9,7 @@ public class PiIRBindItem {
     public String preData;
     
     @NonNull
-    public String code;
+    public String data;
 
     @NonNull
     public MenuAction menuAction;

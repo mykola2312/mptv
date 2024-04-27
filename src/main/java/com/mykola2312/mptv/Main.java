@@ -5,6 +5,8 @@ import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.task.ProcessService;
 import com.mykola2312.mptv.task.TaskDispatcher;
 import com.mykola2312.mptv.ui.MainFrame;
+import com.mykola2312.mptv.ui.MenuAction;
+
 import org.apache.commons.cli.*;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
@@ -91,5 +93,17 @@ public class Main {
         frame.create(config.frame);
 
         logger.info("mptv started");
+
+        // TODO: remove this mock thread test
+        new Thread(new Runnable() {
+            @Override()
+            public void run() {
+                try { Thread.sleep(5000L); } catch (InterruptedException e) {}
+                
+                frame.action(MenuAction.ACTION_RIGHT);
+            }
+        }).start();
+
+        frame.loop();
     }
 }

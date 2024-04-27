@@ -2,6 +2,7 @@ package com.mykola2312.mptv.ui;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,6 +165,26 @@ public class MenuPanel extends JPanel {
             }
         }
         if (load) menuPosition = newMenuPosition;
+    }
+
+    private LinkedBlockingQueue<MenuAction> actionQueue = new LinkedBlockingQueue<>();
+
+    public void actionLoop() {
+        while (!Thread.interrupted()) {
+            try {
+                MenuAction action = actionQueue.take();
+                logger.info("executing action " + action.toString());
+
+                handleMenuAction(action);
+            } catch (InterruptedException e) {
+                logger.warn("interrupted");
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public void postAction(MenuAction action) {
+        actionQueue.add(action);
     }
 
     public MenuPanel(Font font) {

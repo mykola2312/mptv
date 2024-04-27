@@ -31,8 +31,17 @@ public class MainFrame {
     }
 
     public void create(FrameConfig config) {
-        SwingUtilities.invokeLater(() -> {
-            spawn(config);
-        });
+        // SwingUtilities.invokeLater(() -> {
+        //     spawn(config);
+        // });
+        spawn(config);
+    }
+
+    public void loop() {
+        menu.actionLoop();
+    }
+
+    public void action(MenuAction action) {
+        menu.postAction(action);
     }
 }
