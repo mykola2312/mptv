@@ -1,7 +1,6 @@
 package com.mykola2312.mptv.ui;
 
 import com.mykola2312.mptv.I18n;
-import com.mykola2312.mptv.config.FrameConfig;
 
 import javax.swing.*;
 import java.awt.*;

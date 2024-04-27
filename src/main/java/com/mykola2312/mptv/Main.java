@@ -1,6 +1,5 @@
 package com.mykola2312.mptv;
 
-import com.mykola2312.mptv.config.Config;
 import com.mykola2312.mptv.crawler.Crawler;
 import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.task.ProcessService;

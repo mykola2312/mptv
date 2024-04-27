@@ -1,4 +1,4 @@
-package com.mykola2312.mptv.config;
+package com.mykola2312.mptv.piir;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 

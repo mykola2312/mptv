@@ -12,7 +12,6 @@ import org.jooq.exception.NoDataFoundException;
 import org.jooq.impl.*;
 import static com.mykola2312.mptv.tables.Task.*;
 
-import com.mykola2312.mptv.config.TaskItem;
 import com.mykola2312.mptv.db.DB;
 import com.mykola2312.mptv.tables.records.TaskRecord;
 

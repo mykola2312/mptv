@@ -1,4 +1,4 @@
-package com.mykola2312.mptv.config;
+package com.mykola2312.mptv.ui;
 
 public class FrameConfig {
     public short width;

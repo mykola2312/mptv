@@ -3,8 +3,7 @@ package com.mykola2312.mptv;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mykola2312.mptv.config.Config;
-import com.mykola2312.mptv.config.SourceItem;
+import com.mykola2312.mptv.crawler.SourceItem;
 
 import static org.junit.jupiter.api.Assertions.*;
 

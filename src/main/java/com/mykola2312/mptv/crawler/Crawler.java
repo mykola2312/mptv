@@ -21,7 +21,6 @@ import static com.mykola2312.mptv.tables.Channel.*;
 import static com.mykola2312.mptv.tables.Source.*;
 import static com.mykola2312.mptv.tables.Crawl.*;
 
-import com.mykola2312.mptv.config.SourceItem;
 import com.mykola2312.mptv.parser.M3U;
 import com.mykola2312.mptv.parser.M3UException;
 import com.mykola2312.mptv.parser.M3UParser;

@@ -1,6 +1,10 @@
-package com.mykola2312.mptv.config;
+package com.mykola2312.mptv;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mykola2312.mptv.crawler.SourceItem;
+import com.mykola2312.mptv.db.DBConfig;
+import com.mykola2312.mptv.task.TaskItem;
+import com.mykola2312.mptv.ui.FrameConfig;
 
 import java.io.File;
 import java.io.IOException;

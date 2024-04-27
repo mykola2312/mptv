@@ -8,8 +8,6 @@ import org.jooq.Configuration;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DefaultConfiguration;
 
-import com.mykola2312.mptv.config.DBConfig;
-
 public class DB {
     public static String URL = "jdbc:sqlite:mptv.db";
     public static String USER = "";
