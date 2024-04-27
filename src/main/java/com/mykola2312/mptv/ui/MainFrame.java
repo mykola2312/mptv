@@ -31,9 +31,6 @@ public class MainFrame {
     }
 
     public void create(FrameConfig config) {
-        // SwingUtilities.invokeLater(() -> {
-        //     spawn(config);
-        // });
         spawn(config);
     }
 
