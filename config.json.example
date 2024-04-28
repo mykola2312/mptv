@@ -13,12 +13,39 @@
     "password": ""
   },
 
+  "piir": {
+    "exec": "/home/iptv/.local/bin/piir",
+    "gpio": 17,
+    "binds": [
+      {
+        "data": "45 03",
+        "menuAction": "up"
+      },
+      {
+        "data": "45 5E",
+        "menuAction": "down"
+      },
+      {
+        "data": "45 02",
+        "menuAction": "left"
+      },
+      {
+        "data": "45 40",
+        "menuAction": "right"
+      },
+      {
+        "data": "45 5F",
+        "menuAction": "open"
+      }
+    ]
+  },
+
   "sources": [
     {
       "type": "m3u",
       "url": "https://example.com/list.m3u",
       "cookies": null,
-      "rootCategory": null
+      "rootCategory": test
     },
     {
       "type": "m3u-local",
@@ -30,7 +57,7 @@
   "tasks": [
     {
       "name": "crawler",
-      "interval": 60
+      "interval": 86400
     },
     {
       "name": "processService",

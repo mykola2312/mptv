@@ -120,7 +120,7 @@ public class MPV implements TaskProcess {
     @Override
     public boolean spawn() throws IOException {
         process = Runtime.getRuntime().exec(new String[] {
-            "mpv", url, "--input-ipc-server=" + MPV_SOCKET_PATH
+            "mpv", "--vo=gpu", "--ao=pulse", "--fullscreen", "--input-ipc-server=" + MPV_SOCKET_PATH, url
         });
 
         waitForConnection(MPV_SOCKET_PATH);
@@ -130,7 +130,7 @@ public class MPV implements TaskProcess {
 
     @Override
     public boolean isAlive() {
-        return process.isAlive();
+        return process != null ? process.isAlive() : false;
     }
 
     @Override

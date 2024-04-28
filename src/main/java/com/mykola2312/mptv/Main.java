@@ -2,10 +2,10 @@ package com.mykola2312.mptv;
 
 import com.mykola2312.mptv.crawler.Crawler;
 import com.mykola2312.mptv.db.DB;
+import com.mykola2312.mptv.piir.PiIR;
 import com.mykola2312.mptv.task.ProcessService;
 import com.mykola2312.mptv.task.TaskDispatcher;
 import com.mykola2312.mptv.ui.MainFrame;
-import com.mykola2312.mptv.ui.MenuAction;
 
 import org.apache.commons.cli.*;
 import org.flywaydb.core.Flyway;
@@ -18,6 +18,7 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static ProcessService processService = new ProcessService();
+    public static MainFrame frame;
 
     public static void main(String[] args) {
         // parse command line
@@ -82,27 +83,28 @@ public class Main {
         // task dispatcher
         TaskDispatcher dispatcher = new TaskDispatcher();
         dispatcher.updateTaskConfig(config.tasks);
-        //dispatcher.registerTask(crawler); // TODO: enable
+        dispatcher.registerTask(crawler);
 
         dispatcher.registerTask(processService);
 
         new Thread(dispatcher).start();
 
         // initialize ui
-        MainFrame frame = new MainFrame();
+        frame = new MainFrame();
         frame.create(config.frame);
 
-        logger.info("mptv started");
+        // start PiIR
+        PiIR piir = new PiIR(config.piir);
+        try {
+            piir.spawn();
 
-        // TODO: remove this mock thread test
-        new Thread(new Runnable() {
-            @Override()
-            public void run() {
-                try { Thread.sleep(5000L); } catch (InterruptedException e) {}
-                
-                frame.action(MenuAction.ACTION_RIGHT);
-            }
-        }).start();
+            processService.registerProcess(piir);
+        } catch (IOException e) {
+            logger.error("failed to spawn piir. fatal. exiting", e);
+            System.exit(1);
+        }
+
+        logger.info("mptv started");
 
         frame.loop();
     }
