@@ -28,7 +28,7 @@ public class ProcessService implements Task {
     @Override
     public void dispatch() {
         for (TaskProcess process : processes) {
-            if (!process.isAlive()) {
+            if (process.getTaskState() == TaskProcessState.RUNNING && !process.isAlive()) {
                 logger.info("restarting process " + process.toString());
                 try {
                     process.stop();

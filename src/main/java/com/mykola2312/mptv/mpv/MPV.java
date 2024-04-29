@@ -18,12 +18,15 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mykola2312.mptv.task.TaskProcess;
+import com.mykola2312.mptv.task.TaskProcessState;
 
 public class MPV implements TaskProcess {
     private static final Logger logger = LoggerFactory.getLogger(MPV.class);
 
     private final String url;
     private Process process;
+
+    private TaskProcessState state = TaskProcessState.STOPPED;
 
     public MPV(String url) {
         this.url = url;
@@ -131,7 +134,10 @@ public class MPV implements TaskProcess {
 
     @Override
     public boolean spawn() {
+        if (state == TaskProcessState.STARTING) return false;
         try {
+            state = TaskProcessState.STARTING;
+
             process = Runtime.getRuntime().exec(new String[] {
                 "mpv", "--vo=gpu", "--ao=pulse", "--fullscreen", "--input-ipc-server=" + MPV_SOCKET_PATH, url
             });
@@ -147,10 +153,19 @@ public class MPV implements TaskProcess {
             return false;
         }
 
-        return process.isAlive();
+        if (process.isAlive()) {
+            state = TaskProcessState.RUNNING;
+            return true;
+        } else {
+            state = TaskProcessState.STOPPED;
+            return false;
+        }
     }
 
-    private static final float PLAYBACK_TIME_DELAY = 2.5f;
+    @Override
+    public TaskProcessState getTaskState() {
+        return state;
+    }
 
     private boolean checkPlayback() {
         try {
@@ -182,7 +197,7 @@ public class MPV implements TaskProcess {
 
                     return true;
                 } else {
-                    boolean playbackChanged = (playbackTime - lastPlaybackTime) > PLAYBACK_TIME_DELAY;
+                    boolean playbackChanged = (playbackTime - lastPlaybackTime) > 0.1;
                 
                     lastPlaybackTime = playbackTime;
                     return playbackChanged;
@@ -212,6 +227,8 @@ public class MPV implements TaskProcess {
 
     @Override
     public void stop() {
+        state = TaskProcessState.STOPPING;
+
         if (reader != null) reader.running = false;
         if (readerThread != null) readerThread.interrupt();
         if (socket != null) closeConnection();
@@ -220,6 +237,8 @@ public class MPV implements TaskProcess {
         readerThread = null;
         socket = null;
         process = null;
+
+        state = TaskProcessState.STOPPED;
     }
 
     private int requestIdCounter = 0;

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mykola2312.mptv.Main;
 import com.mykola2312.mptv.task.TaskProcess;
+import com.mykola2312.mptv.task.TaskProcessState;
 import com.mykola2312.mptv.ui.MenuAction;
 
 public class PiIR implements TaskProcess {
@@ -23,6 +24,8 @@ public class PiIR implements TaskProcess {
 
     private Process process = null;
     private InputStream input = null;
+
+    private TaskProcessState state;
 
     private class PiIRReader implements Runnable {
         private final PiIR piir;
@@ -118,7 +121,10 @@ public class PiIR implements TaskProcess {
 
     @Override
     public boolean spawn() {
+        if (state == TaskProcessState.STARTING) return false;
         try {
+            state = TaskProcessState.STARTING;
+
             process = Runtime.getRuntime().exec(new String[] {
                 "unbuffer", exec, "dump", "--gpio", String.valueOf(gpio)
             });
@@ -131,7 +137,17 @@ public class PiIR implements TaskProcess {
         readerThread = new Thread(reader);
         readerThread.start();
 
-        return isAlive();
+        if (process.isAlive()) {
+            state = TaskProcessState.RUNNING;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public TaskProcessState getTaskState() {
+        return state;
     }
 
     @Override
@@ -141,6 +157,8 @@ public class PiIR implements TaskProcess {
 
     @Override
     public void stop() {
+        state = TaskProcessState.STOPPING;
+
         if (reader != null) reader.running = false;
         if (readerThread != null) readerThread.interrupt();
         if (input != null) {
@@ -154,6 +172,8 @@ public class PiIR implements TaskProcess {
         reader = null;
         readerThread = null;
         process = null;
+
+        state = TaskProcessState.STOPPED;
     }
     
     public void handleDump(PiIRDump dump) {
