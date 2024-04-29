@@ -17,12 +17,12 @@
         </encoder>
     </appender>
 
-    <logger name="com.mykola2312" level="debug" additivity="false">
+    <logger name="com.mykola2312" level="info" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </logger>
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

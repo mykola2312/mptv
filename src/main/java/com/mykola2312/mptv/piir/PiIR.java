@@ -36,28 +36,62 @@ public class PiIR implements TaskProcess {
 
         private static final int BUFFER_SIZE = 512;
 
+        private enum ReaderState {
+            SKIPPING,
+            READING_JSON,
+            PARSE_JSON
+        }
+
         @Override
         public void run() {
+            ReaderState state = ReaderState.SKIPPING;
             byte[] buf = new byte[BUFFER_SIZE];
+            int off = 0;
             try {
                 while (running && !Thread.currentThread().isInterrupted()) {
                     // reader loop
-                    int len = input.read(buf, 0, buf.length);
+                    int len = input.read(buf, off, 1);
                     if (len < 0) {
                         logger.warn("reading error. exiting");
                         running = false;
                         return;
                     }
 
-                    String line = new String(
-                        Arrays.copyOfRange(buf, 0, len),
-                        StandardCharsets.UTF_8);
-                    try {
-                        PiIRDump dump = PiIRDump.deserialize(line);
+                    switch (buf[off]) {
+                        case '{' -> state = ReaderState.READING_JSON;
+                        case '}' -> state = ReaderState.PARSE_JSON;
+                    }
 
-                        piir.handleDump(dump);
-                    } catch (JsonProcessingException e) {
-                        logger.warn("failed to deserialize dump!", e);
+                    switch (state) {
+                        case SKIPPING -> {}
+
+                        case READING_JSON -> {
+                            off++;
+
+                            if (off >= BUFFER_SIZE) {
+                                logger.warn(String.format(
+                                    "buffer overflow from piir dump! %d >= %d", off, BUFFER_SIZE));
+                                state = ReaderState.SKIPPING;
+                                off = 0;
+                            }
+                        }
+
+                        case PARSE_JSON -> {
+                            String line = new String(
+                                Arrays.copyOfRange(buf, 0, off+1),
+                                StandardCharsets.UTF_8);
+                            logger.info(line);
+                            try {
+                                PiIRDump dump = PiIRDump.deserialize(line);
+
+                                piir.handleDump(dump);
+                            } catch (JsonProcessingException e) {
+                                logger.warn("failed to deserialize dump!", e);
+                            } finally {
+                                state = ReaderState.SKIPPING;
+                                off = 0;
+                            }
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -85,7 +119,7 @@ public class PiIR implements TaskProcess {
     @Override
     public boolean spawn() throws IOException {
         process = Runtime.getRuntime().exec(new String[] {
-            exec, "dump", "--gpio", String.valueOf(gpio)
+            "unbuffer", exec, "dump", "--gpio", String.valueOf(gpio)
         });
         input = process.getInputStream();
 
@@ -122,6 +156,7 @@ public class PiIR implements TaskProcess {
         String key = formatBindKey(dump.pre_data, dump.data);
         MenuAction action = binds.get(key);
         if (action != null) {
+            logger.info("executing action " + action.toString());
             Main.frame.action(action);
         } else {
             logger.warn(String.format(

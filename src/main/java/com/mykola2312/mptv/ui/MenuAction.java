@@ -16,5 +16,8 @@ public enum MenuAction {
     ACTION_RIGHT,
 
     @JsonProperty("open")
-    ACTION_OPEN
+    ACTION_OPEN,
+
+    @JsonProperty("close")
+    ACTION_CLOSE
 }

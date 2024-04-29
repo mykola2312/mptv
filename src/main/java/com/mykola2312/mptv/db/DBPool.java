@@ -47,8 +47,6 @@ public class DBPool implements ConnectionProvider {
     protected DBConnection spawnConnection() throws SQLException {
         DBConnection conn = new DBConnection(DriverManager.getConnection(url), false);
         connections.add(conn);
-
-        logger.debug(String.format("spawned connection %s", conn.toString()));
         return conn;
     }
 
@@ -72,7 +70,6 @@ public class DBPool implements ConnectionProvider {
 
         conn.beingUsed = true;
 
-        logger.debug(String.format("allocated connection %s", conn.toString()));
         return conn.connection;
     }
 

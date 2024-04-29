@@ -135,6 +135,8 @@ public class MenuPanel extends JPanel {
                     }
                 }
             }
+
+            case ACTION_CLOSE -> closePlayer();
         }
         if (categoryIndex < 0) categoryIndex = 0;
         if (channelIndex < 0) channelIndex = 0;
