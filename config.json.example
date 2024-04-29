@@ -36,6 +36,11 @@
       {
         "data": "45 5F",
         "menuAction": "open"
+      },
+      {
+        "preData": "45 BA",
+        "data": "60",
+        "menuAction": "close"
       }
     ]
   },
