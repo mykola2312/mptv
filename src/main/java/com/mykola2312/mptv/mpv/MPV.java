@@ -84,14 +84,21 @@ public class MPV implements TaskProcess {
     private MPVReader reader;
     private Thread readerThread;
 
+    // around 10 seconds
+    private static final int MAX_STALLED_RETRIES = 10;
+
     private Float lastPlaybackTime = null;
+    private int stalledRetries = 0;
 
     private static final Path MPV_SOCKET_PATH = Path.of("/tmp/mptv-mpv.sock");
-    private static final long WAIT_MILLIS = 250;
+    private static final long WAIT_MILLIS = 550;
     private static final int WAIT_ATTEMPTS = 5;
 
     private void waitForConnection(Path socketPath) throws MPVSocketFailure {
-        for (int i = 0; i < WAIT_ATTEMPTS; i++) {
+        int attempt = 0;
+        // I have to make it with while loop just to remind me
+        // exit loop after socket successfuly connected
+        while ((socket == null || !socket.isConnected()) && attempt++ < WAIT_ATTEMPTS) {
             try {
                 Thread.sleep(WAIT_MILLIS);
 
@@ -130,6 +137,10 @@ public class MPV implements TaskProcess {
             });
 
             waitForConnection(MPV_SOCKET_PATH);
+
+            // reset it here just to be sure
+            lastPlaybackTime = null;
+            stalledRetries = 0;
         } catch (IOException e) {
             return false;
         } catch (MPVSocketFailure e) {
@@ -138,6 +149,8 @@ public class MPV implements TaskProcess {
 
         return process.isAlive();
     }
+
+    private static final float PLAYBACK_TIME_DELAY = 2.5f;
 
     private boolean checkPlayback() {
         try {
@@ -157,16 +170,32 @@ public class MPV implements TaskProcess {
             // if we have previous playback - compare them,
             // if not changed, then player stuck
             if (lastPlaybackTime != null) {
-                boolean playbackChanged = (playbackTime - lastPlaybackTime) > 0.1;
+                // we need to check this because MPV loves
+                // returning playback time even before video loads
+                if (playbackTime == 0.0) {
+                    // we're loading video, give it a try
+                    stalledRetries++;
+                    if (stalledRetries > MAX_STALLED_RETRIES) {
+                        stalledRetries = 0;
+                        return false; // we're stuck, therefore die
+                    }
+
+                    return true;
+                } else {
+                    boolean playbackChanged = (playbackTime - lastPlaybackTime) > PLAYBACK_TIME_DELAY;
                 
-                lastPlaybackTime = playbackTime;
-                return playbackChanged;
+                    lastPlaybackTime = playbackTime;
+                    return playbackChanged;
+                }
             } else { // just set first playback
                 lastPlaybackTime = playbackTime;
                 return true;
             }
         } catch (MPVCommandTimeout e) {
             logger.warn("mpv ipc timeout bruh");
+            return false;
+        } catch (MPVSocketFailure e) {
+            logger.warn("since socket failure we must trigger ProcessService for restart");
             return false;
         }
     }
@@ -201,7 +230,7 @@ public class MPV implements TaskProcess {
 
     private static final long COMMAND_TIMEOUT = 2000L;
 
-    public MPVCommandResult executeCommand(MPVCommand command) {
+    public MPVCommandResult executeCommand(MPVCommand command) throws MPVCommandTimeout, MPVSocketFailure {
         try {
             commandRequestId = command.setRequestId(requestIdCounter++);
 
@@ -223,16 +252,12 @@ public class MPV implements TaskProcess {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("failed to serialize command", e);
         } catch (SocketClosedException e) {
-            logger.warn("socket's closed. lets try re-open ipc connection and request again");
-            // so, for some reason socket got closed. we're gonna re-open it
-            // (hopefully) and try executing command again
-            try {
-                waitForConnection(MPV_SOCKET_PATH);
-
-                return executeCommand(command);
-            } catch (MPVSocketFailure e1) {
-                throw new MPVCommandTimeout();
-            }
+            logger.warn("socket's closed");
+            
+            closeConnection();
+            socket = null;
+            
+            throw new MPVSocketFailure(e);
         } catch (IOException e) {
             throw new RuntimeException("io exception", e);
         }
