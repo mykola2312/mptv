@@ -12,6 +12,7 @@ import org.newsclub.net.unix.AFInputStream;
 import org.newsclub.net.unix.AFOutputStream;
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
+import org.newsclub.net.unix.SocketClosedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -221,6 +222,17 @@ public class MPV implements TaskProcess {
             return commandResult;
         } catch (JsonProcessingException e) {
             throw new RuntimeException("failed to serialize command", e);
+        } catch (SocketClosedException e) {
+            logger.warn("socket's closed. lets try re-open ipc connection and request again");
+            // so, for some reason socket got closed. we're gonna re-open it
+            // (hopefully) and try executing command again
+            try {
+                waitForConnection(MPV_SOCKET_PATH);
+
+                return executeCommand(command);
+            } catch (MPVSocketFailure e1) {
+                throw new MPVCommandTimeout();
+            }
         } catch (IOException e) {
             throw new RuntimeException("io exception", e);
         }
