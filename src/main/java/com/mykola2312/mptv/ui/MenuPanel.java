@@ -198,17 +198,26 @@ public class MenuPanel extends JPanel {
         final JPanel categoryPanel = new JPanel(new BorderLayout());
         final JPanel channelPanel = new JPanel(new BorderLayout());
 
+        logPanel.setBackground(Color.BLACK);
+        categoryPanel.setBackground(Color.BLACK);
+        channelPanel.setBackground(Color.BLACK);
+
         final JSplitPane hsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, categoryPanel, channelPanel);
         hsp.setDividerLocation(0.35);
+        hsp.setBackground(Color.BLACK);
 
         final JSplitPane vsp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, logPanel, hsp);
         vsp.setDividerSize(2);
         vsp.setContinuousLayout(true);
         vsp.setDividerLocation(50);
+        vsp.setBackground(Color.BLACK);
         add(vsp);
 
         categoryList = new JList<Category>();
         categoryList.setFont(getFont());
+
+        categoryList.setForeground(Color.WHITE);
+        categoryList.setBackground(Color.BLACK);
 
         final JScrollPane categoryListScroll = new JScrollPane(categoryList);
         categoryListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -217,6 +226,9 @@ public class MenuPanel extends JPanel {
 
         channelList = new JList<Channel>();
         channelList.setFont(getFont());
+
+        channelList.setForeground(Color.WHITE);
+        channelList.setBackground(Color.BLACK);
 
         final JScrollPane channelListScroll = new JScrollPane(channelList);
         channelListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
