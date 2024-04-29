@@ -84,7 +84,6 @@ public class Main {
         TaskDispatcher dispatcher = new TaskDispatcher();
         dispatcher.updateTaskConfig(config.tasks);
         dispatcher.registerTask(crawler);
-
         dispatcher.registerTask(processService);
 
         new Thread(dispatcher).start();
@@ -95,12 +94,10 @@ public class Main {
 
         // start PiIR
         PiIR piir = new PiIR(config.piir);
-        try {
-            piir.spawn();
-
+        if (piir.spawn()) {
             processService.registerProcess(piir);
-        } catch (IOException e) {
-            logger.error("failed to spawn piir. fatal. exiting", e);
+        } else {
+            logger.error("failed to spawn piir. exiting");
             System.exit(1);
         }
 

@@ -21,7 +21,6 @@ import static com.mykola2312.mptv.tables.Channel.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 
 public class MenuPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(MenuPanel.class);
@@ -81,14 +80,12 @@ public class MenuPanel extends JPanel {
         }
 
         MPV newPlayer = new MPV(url);
-        try {
-            if (newPlayer.spawn()) {
-                player = newPlayer;
+        if (newPlayer.spawn()) {
+            player = newPlayer;
 
-                Main.processService.registerProcess(player);
-            }
-        } catch (IOException e) {
-            logger.error("failed to spawn player", e);
+            Main.processService.registerProcess(player);
+        } else {
+            logger.error("failed to spawn mpv");
         }
     }
 

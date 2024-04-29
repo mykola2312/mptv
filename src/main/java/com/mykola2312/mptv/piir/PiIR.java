@@ -117,10 +117,14 @@ public class PiIR implements TaskProcess {
     }
 
     @Override
-    public boolean spawn() throws IOException {
-        process = Runtime.getRuntime().exec(new String[] {
-            "unbuffer", exec, "dump", "--gpio", String.valueOf(gpio)
-        });
+    public boolean spawn() {
+        try {
+            process = Runtime.getRuntime().exec(new String[] {
+                "unbuffer", exec, "dump", "--gpio", String.valueOf(gpio)
+            });
+        } catch (IOException e) {
+            return false;
+        }
         input = process.getInputStream();
 
         reader = new PiIRReader(this, input);

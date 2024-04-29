@@ -83,11 +83,13 @@ public class MPV implements TaskProcess {
     private MPVReader reader;
     private Thread readerThread;
 
+    private Float lastPlaybackTime = null;
+
     private static final Path MPV_SOCKET_PATH = Path.of("/tmp/mptv-mpv.sock");
     private static final long WAIT_MILLIS = 250;
     private static final int WAIT_ATTEMPTS = 5;
 
-    private void waitForConnection(Path socketPath) throws IOException {
+    private void waitForConnection(Path socketPath) throws MPVSocketFailure {
         for (int i = 0; i < WAIT_ATTEMPTS; i++) {
             try {
                 Thread.sleep(WAIT_MILLIS);
@@ -101,10 +103,12 @@ public class MPV implements TaskProcess {
                 
                 logger.info(String.format("connected to socket %s", socket.toString()));
             } catch (SocketException e) {
-                logger.error("SocketException", e);
+                logger.info("SocketException.. trying to connect");
                 closeConnection();
+            } catch (IOException e) {
+                throw new MPVSocketFailure(e);
             } catch (InterruptedException e) {
-                break;
+                throw new MPVSocketFailure(e);
             }
         }
     }
@@ -118,19 +122,62 @@ public class MPV implements TaskProcess {
     }
 
     @Override
-    public boolean spawn() throws IOException {
-        process = Runtime.getRuntime().exec(new String[] {
-            "mpv", "--vo=gpu", "--ao=pulse", "--fullscreen", "--input-ipc-server=" + MPV_SOCKET_PATH, url
-        });
+    public boolean spawn() {
+        try {
+            process = Runtime.getRuntime().exec(new String[] {
+                "mpv", "--vo=gpu", "--ao=pulse", "--fullscreen", "--input-ipc-server=" + MPV_SOCKET_PATH, url
+            });
 
-        waitForConnection(MPV_SOCKET_PATH);
+            waitForConnection(MPV_SOCKET_PATH);
+        } catch (IOException e) {
+            return false;
+        } catch (MPVSocketFailure e) {
+            return false;
+        }
 
-        return isAlive();
+        return process.isAlive();
+    }
+
+    private boolean checkPlayback() {
+        try {
+            // get playback
+            MPVCommandResult result = executeCommand(
+                new MPVGetProperty(MPVProperty.PLAYBACK_TIME));
+            
+            Float playbackTime;
+            try {
+                playbackTime = Float.parseFloat(result.data);
+            } catch (NumberFormatException e) {
+                logger.error("FAILED TO PARSE PLAYBACK DATA: " + result.data);
+                return false;
+            }
+            logger.info("playbackTime " + playbackTime);
+
+            // if we have previous playback - compare them,
+            // if not changed, then player stuck
+            if (lastPlaybackTime != null) {
+                boolean playbackChanged = (playbackTime - lastPlaybackTime) > 0.1;
+                
+                lastPlaybackTime = playbackTime;
+                return playbackChanged;
+            } else { // just set first playback
+                lastPlaybackTime = playbackTime;
+                return true;
+            }
+        } catch (MPVCommandTimeout e) {
+            logger.warn("mpv ipc timeout bruh");
+            return false;
+        }
     }
 
     @Override
     public boolean isAlive() {
-        return process != null ? process.isAlive() : false;
+        // if we have process, check if playback still going on
+        if (process != null) {
+            return checkPlayback();
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -153,7 +200,7 @@ public class MPV implements TaskProcess {
 
     private static final long COMMAND_TIMEOUT = 2000L;
 
-    public MPVCommandResult writeCommand(MPVCommand command) {
+    public MPVCommandResult executeCommand(MPVCommand command) {
         try {
             commandRequestId = command.setRequestId(requestIdCounter++);
 

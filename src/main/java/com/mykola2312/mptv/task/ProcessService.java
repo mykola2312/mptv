@@ -29,6 +29,7 @@ public class ProcessService implements Task {
     public void dispatch() {
         for (TaskProcess process : processes) {
             if (!process.isAlive()) {
+                logger.info("restarting process " + process.toString());
                 try {
                     process.stop();
                     process.spawn();
