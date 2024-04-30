@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +115,8 @@ public class PiIR implements TaskProcess {
         this.exec = config.exec;
         this.gpio = config.gpio;
 
-        for (var bind : config.binds) {
+        List<PiIRBindItem> bindSet = config.bindSet.get(config.currentBindSet);
+        for (var bind : bindSet) {
             binds.put(formatBindKey(bind.preData, bind.data), bind.menuAction);
         }
     }
