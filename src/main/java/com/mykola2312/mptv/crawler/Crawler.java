@@ -141,17 +141,17 @@ public class Crawler implements Task {
     public void crawl() {
         crawlId = beginCrawl();
         for (Source source : loadSources()) {
+            if (source.urlOrPath == null) {
+                logger.error("m3u local has to have \"path\" variable");
+                continue;
+            } else if (source.rootName == null) {
+                logger.error("source has to have \"rootCategory\"");
+                continue;
+            }
+
             switch (source.type) {
                 case "m3u-local" -> {
                     try {
-                        if (source.urlOrPath == null) {
-                            logger.error("m3u local has to have \"path\" variable");
-                            continue;
-                        } else if (source.rootName == null) {
-                            logger.error("source has to have \"rootCategory\"");
-                            continue;
-                        }
-
                         String m3uData = Files.readString(Paths.get(source.urlOrPath), StandardCharsets.UTF_8);
                         ArrayList<M3U> m3u = M3UParser.parse(m3uData);
 
@@ -160,8 +160,21 @@ public class Crawler implements Task {
                         logger.error(e.toString());
                         logger.error(String.format("failed to read local m3u file: %s", e.getMessage()));
                     } catch (M3UException e) {
-                        logger.error(e.toString());
-                        logger.error(String.format("failed to parse m3u: %s", e.getMessage()));
+                        logger.error("failed to parse m3u", e);
+                    }
+                }
+
+                case "m3u" -> {
+                    try {
+                        WebRequest get = new WebRequest(source.urlOrPath);
+                        WebContent content = get.fetch();
+                        ArrayList<M3U> m3u = M3UParser.parse(content.body);
+
+                        updateAllChannels(m3u, source.rootName);
+                    } catch (WebException e) {
+                        logger.warn("failed to fetch " + source.urlOrPath);
+                    } catch (M3UException e) {
+                        logger.error("failed to parse m3u", e);
                     }
                 }
 
