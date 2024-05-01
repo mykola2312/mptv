@@ -16,33 +16,41 @@
   "piir": {
     "exec": "/home/iptv/.local/bin/piir",
     "gpio": 17,
-    "binds": [
-      {
-        "data": "45 03",
-        "menuAction": "up"
-      },
-      {
-        "data": "45 5E",
-        "menuAction": "down"
-      },
-      {
-        "data": "45 02",
-        "menuAction": "left"
-      },
-      {
-        "data": "45 40",
-        "menuAction": "right"
-      },
-      {
-        "data": "45 5F",
-        "menuAction": "open"
-      },
-      {
-        "preData": "45 BA",
-        "data": "60",
-        "menuAction": "close"
-      }
-    ]
+    "currentBindSet": "gi",
+    "bindSet": {
+      "gi": [
+        {
+          "preData": "45 BA",
+          "data": "03",
+          "menuAction": "up"
+        },
+        {
+          "preData": "45 BA",
+          "data": "5E",
+          "menuAction": "down"
+        },
+        {
+          "preData": "45 BA",
+          "data": "02",
+          "menuAction": "left"
+        },
+        {
+          "preData": "45 BA",
+          "data": "40",
+          "menuAction": "right"
+        },
+        {
+          "preData": "45 BA",
+          "data": "5F",
+          "menuAction": "open"
+        },
+        {
+          "preData": "45 BA",
+          "data": "60",
+          "menuAction": "close"
+        }
+      ]
+    }
   },
 
   "sources": [
